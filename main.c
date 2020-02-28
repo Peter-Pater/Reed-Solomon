@@ -12,7 +12,6 @@ int main()
   printf("the result is %d\n", r1);
   printBinary(r1);
 
-
   // check multiply without modular reduction:
   int c = 137; //10001001
   int d = 42; //00101010
