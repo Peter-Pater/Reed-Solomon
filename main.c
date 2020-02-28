@@ -8,21 +8,25 @@ int main()
   // check add/sub:
   int a = 5;
   int b = 6;
-  int result = gf_sub_BCH_8bits(a, b);
-  printf("the result is %d\n", result);
-
-
-  // check multiply:
-  int c = 137; //10001001
-  int d = 42; //00101010
-  int r1 = gf_mul_BCH_8bits(c, d);
+  int r1 = gf_sub_BCH_8bits(a, b);
   printf("the result is %d\n", r1);
   printBinary(r1);
 
-  // for (int i = 0; i < 256; i++)
-  // {
-  //   printBinary(i);
-  // }
+
+  // check multiply without modular reduction:
+  int c = 137; //10001001
+  int d = 42; //00101010
+  int r2 = gf_mul_BCH_8bits(c, d);
+  printf("the result is %d\n", r2);
+  printBinary(r2);
+
+  // check multiply with modular reduction:
+  int e = 137; //10001001
+  int f = 42; //00101010
+  int prime_polynomial = 285; //100011101
+  int r3 = gf_mul_MR_BCH_8bits(e, f, prime_polynomial);
+  printf("the result is %d\n", r3);
+  printBinary(r3);
 
   return 0;
 }

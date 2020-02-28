@@ -25,9 +25,14 @@ int gf_mul_BCH_8bits(int x, int y)
     return result;
 }
 
-int gf_mul_MR_BCH_8bits(int x, int y)
+int gf_mul_MR_BCH_8bits(int x, int y, int prime_polynomial)
 {
-    int result = 0;
+    int result = gf_mul_BCH_8bits(x, y);
+
+    if (prime_polynomial > 0)
+    {
+        result = carry_less_long_div(result, prime_polynomial);
+    }
     
     return result;
 }
