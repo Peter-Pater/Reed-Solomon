@@ -1,4 +1,4 @@
-#include<arithmetic.h>
+#include "arithmetic.h"
 
 int gf_add_BCH_8bits(int x, int y)
 {
@@ -19,9 +19,15 @@ int gf_mul_BCH_8bits(int x, int y)
         if (y & (1 << pos))
         {
             result ^= x << pos;
-
         }
         pos += 1;
     }
+    return result;
+}
+
+int gf_mul_MR_BCH_8bits(int x, int y)
+{
+    int result = 0;
+    
     return result;
 }
