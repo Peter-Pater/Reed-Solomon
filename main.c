@@ -4,7 +4,6 @@
 
 int main()
 {
-
   // check add/sub:
   int a = 5;
   int b = 6;
@@ -26,6 +25,16 @@ int main()
   int r3 = gf_mul_MR_BCH_8bits(e, f, prime_polynomial);
   printf("the result is %d\n", r3);
   printBinary(r3);
+
+  // table_generator(prime_polynomial);
+  struct Tables *tables = newTables(prime_polynomial, 256);
+  // int *exponents = tables->gf_exp;
+  for (int i = 0; i < 512; i++)
+  {
+      printf("gf_exp[%d] = %d\n", i, *(tables->gf_exp + i));
+  }
+
+  delTables(tables);
 
   return 0;
 }
