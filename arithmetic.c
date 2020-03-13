@@ -115,3 +115,50 @@ void delTables(struct Tables *tables)
     }
 }
 
+void printTables(struct Tables *tables)
+{
+    printf("gf_exp_table:\n");
+    for (int i = 0; i < 512; i++)
+    {
+        printf("gf_exp[%d] = %d\n", i, *(tables->gf_exp + i));
+    }
+    printf("\ngf_log_table:\n");
+    for (int i = 0; i < 256; i++)
+    {
+        printf("gf_log[%d] = %d\n", i, *(tables->gf_log + i));
+    }
+}
+
+int gf_mul_MR_BCH_8bits_LUT(int x, int y, struct Tables *tables)
+{
+    if (x == 0 || y == 0)
+    {
+        return 0;
+    }
+    return *(tables->gf_exp + *(tables->gf_log + x) + *(tables->gf_log + y));
+}
+
+int gf_div_MR_BCH_8bits_LUT(int x, int y, struct Tables *tables)
+{
+    if (y == 0)
+    {
+        exit(1);
+    }
+    if (x == 0)
+    {
+        return 0;
+    }
+    return *(tables->gf_exp + (*(tables->gf_log + x) + 255 - *(tables->gf_log + y)) % 255);
+}
+
+int gf_pow_MR_BCH_8bits_LUT(int x, int power, struct Tables *tables)
+{
+    return *(tables->gf_exp + (*(tables->gf_log + x) * power) % 255);
+}
+
+int gf_inverse_MR_BCH_8bits_LUT(int x, struct Tables *tables)
+{
+    return *(tables->gf_exp + 255 - *(tables->gf_log + x));
+}
+
+

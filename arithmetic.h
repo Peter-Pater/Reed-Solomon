@@ -20,5 +20,14 @@ struct Tables
 };
 
 struct Tables *newTables(int, size_t);
+
 void delTables(struct Tables *);
+
+void printTables(struct Tables *);
+
+int gf_mul_MR_BCH_8bits_LUT(int, int, struct Tables *);
+
+int gf_div_MR_BCH_8bits_LUT(int, int, struct Tables *);
+
+int gf_pow_MR_BCH_8bits_LUT(int, int, struct Tables *);
 
