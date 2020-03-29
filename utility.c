@@ -94,28 +94,28 @@ int carry_less_long_div(int dividend, int divisor)
 
 struct Polynomial *newPolynomial(int *arr, size_t sz)
 {
-    struct Polynomial *retVal = malloc(sizeof(struct Polynomial));
-    if (retVal == NULL)
+    struct Polynomial *ret_val = malloc(sizeof(struct Polynomial));
+    if (ret_val == NULL)
     {
         return NULL;
     }
 
-    retVal->ploy_arr = malloc(sz * sizeof(int));
+    ret_val->ploy_arr = malloc(sz * sizeof(int));
 
-    if (retVal->ploy_arr == NULL) 
+    if (ret_val->ploy_arr == NULL)
     {
-        free (retVal);
+        free (ret_val);
         return NULL;
     }
 
-    retVal->poly_size = sz;
+    ret_val->poly_size = sz;
 
     for (int i = 0; i < sz; i++)
     {
-        *(retVal->ploy_arr + i) = *(arr + i);
+        *(ret_val->ploy_arr + i) = *(arr + i);
     }
 
-    return retVal;
+    return ret_val;
 }
 
 void delPolynomial(struct Polynomial *poly)

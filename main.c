@@ -9,6 +9,7 @@ int main()
   int r1 = gf_sub_BCH_8bits(a, b);
   printf("the result is %d\n", r1);
   printBinary(r1);
+  printf("\n");
 
   // check multiply without modular reduction:
   int c = 137; //10001001
@@ -16,6 +17,7 @@ int main()
   int r2 = gf_mul_BCH_8bits(c, d);
   printf("the result is %d\n", r2);
   printBinary(r2);
+  printf("\n");
 
   int prime_polynomial = 285; //100011101
 
@@ -25,9 +27,10 @@ int main()
   int r3 = gf_mul_MR_BCH_8bits(e, f, prime_polynomial);
   printf("the result is %d\n", r3);
   printBinary(r3);
+  printf("\n");
 
   struct Tables *tables = newTables(prime_polynomial, 256);
-  printTables(tables);
+  // printTables(tables);
 
   // check multiply with LUT:
   int g = 137; //10001001
@@ -35,6 +38,7 @@ int main()
   int r4 = gf_mul_MR_BCH_8bits_LUT(g, h, tables);
   printf("the result is %d\n", r4);
   printBinary(r4);
+  printf("\n");
 
   // check division with LUT:
   int a1 = 195; //11000011
@@ -42,17 +46,28 @@ int main()
   int r5 = gf_div_MR_BCH_8bits_LUT(a1, a2, tables);
   printf("the result is %d\n", r5);
   printBinary(r5);
+  printf("\n");
 
-  // check polynomial operations
+  // check polynomial operations:
+  // check scale operation:
   int arr1[4] = {137, 1, 4, 1};
-  int arr2[3] = {1, 2, -1};
   struct Polynomial *poly1 = newPolynomial(arr1, 4);
-
-  struct Polynomial * retval = gf_poly_scale(poly1, 42, tables);
-
-  printPolynomial(retval);
-
+  struct Polynomial * ret_val = gf_poly_scale(poly1, 42, tables);
+  printPolynomial(ret_val);
   delPolynomial(poly1);
+  printf("\n");
+
+  // check add operation:
+  int arr2[4] = {3, 1, 4, 1};
+  int arr3[3] = {1, 2, 2};
+  struct Polynomial *poly2 = newPolynomial(arr2, 4);
+  struct Polynomial *poly3 = newPolynomial(arr3, 3);
+  struct Polynomial * ret_val1 = gf_poly_add(poly2, poly3);
+  printPolynomial(ret_val1);
+  delPolynomial(poly2);
+  delPolynomial(poly3);
+  delPolynomial(ret_val1);
+  printf("\n");
 
   delTables(tables);
 

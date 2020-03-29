@@ -171,4 +171,41 @@ struct Polynomial *gf_poly_scale(struct Polynomial *p, int x, struct Tables *tab
     return p;
 }
 
+struct Polynomial *gf_poly_add(struct Polynomial *p, struct Polynomial *q)
+{
+    printPolynomial(p);
+    printPolynomial(q);
+    int ret_size = 0;
+    if (p->poly_size > q->poly_size)
+    {
+        ret_size = p->poly_size;
+    } else {
+        ret_size = q->poly_size;
+    }
+    struct Polynomial *ret_val = malloc(sizeof(struct Polynomial));
+    if (ret_val == NULL)
+    {
+        return NULL;
+    }
+    ret_val->poly_size = ret_size;
 
+    ret_val->ploy_arr = malloc(ret_size * sizeof(int));
+
+    if (ret_val->ploy_arr == NULL)
+    {
+        free (ret_val);
+        return NULL;
+    }
+
+    for (int i = 0; i < p->poly_size; i++)
+    {
+        *(ret_val->ploy_arr + i + ret_size - p->poly_size) = *(p->ploy_arr + i);
+    }
+
+    for (int i = 0; i < q->poly_size; i++)
+    {
+        *(ret_val->ploy_arr + i + ret_size - q->poly_size) ^= *(q->ploy_arr + i);
+    }
+
+    return ret_val;
+}
