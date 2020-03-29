@@ -243,3 +243,13 @@ struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struc
 
     return ret_val;
 }
+
+int gf_poly_eval(struct Polynomial *p, int x, struct Tables *tables)
+{
+    int y = *(p->ploy_arr);
+    for (int i = 1; i < p->poly_size; i++)
+    {
+        y = gf_mul_MR_BCH_8bits_LUT(y, x, tables) ^ *(p->ploy_arr + i);
+    }
+    return y;
+}

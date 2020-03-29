@@ -69,13 +69,14 @@ int main()
   delPolynomial(ret_val1);
   printf("\n");
 
-  // check multiply operation:
+  // check multiply operation & evaluation:
   int arr4[4] = {1, 1, 1, 1};
   int arr5[3] = {1, 1, 1};
   struct Polynomial *poly4 = newPolynomial(arr4, 4);
   struct Polynomial *poly5 = newPolynomial(arr5, 3);
   struct Polynomial * ret_val2 = gf_poly_mul(poly4, poly5, tables);
   printPolynomial(ret_val2);
+  printf("The evaluation with x = 2 is: %d\n", gf_poly_eval(ret_val2, 2, tables));
   delPolynomial(poly4);
   delPolynomial(poly5);
   delPolynomial(ret_val2);
