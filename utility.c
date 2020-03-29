@@ -92,3 +92,48 @@ int carry_less_long_div(int dividend, int divisor)
     return dividend;
 }
 
+struct Polynomial *newPolynomial(int *arr, size_t sz)
+{
+    struct Polynomial *retVal = malloc(sizeof(struct Polynomial));
+    if (retVal == NULL)
+    {
+        return NULL;
+    }
+
+    retVal->ploy_arr = malloc(sz * sizeof(int));
+
+    if (retVal->ploy_arr == NULL) 
+    {
+        free (retVal);
+        return NULL;
+    }
+
+    retVal->poly_size = sz;
+
+    for (int i = 0; i < sz; i++)
+    {
+        *(retVal->ploy_arr + i) = *(arr + i);
+    }
+
+    return retVal;
+}
+
+void delPolynomial(struct Polynomial *poly)
+{
+    if (poly != NULL)
+    {
+        free(poly->ploy_arr);
+        free(poly);
+    }
+}
+
+void printPolynomial(struct Polynomial *poly)
+{
+    printf("the size of poly1 is %lu\n", poly->poly_size);
+    printf("the coefficients of poly1 is: ");
+    for (int i = 0; i < poly->poly_size; i++)
+    {
+        printf("%d ", *(poly->ploy_arr+i));
+    }
+    printf("\n");
+}

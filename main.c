@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "arithmetic.h"
-#include "utility.h"
 
 int main()
 {
@@ -28,7 +27,7 @@ int main()
   printBinary(r3);
 
   struct Tables *tables = newTables(prime_polynomial, 256);
-  // printTables(tables);
+  printTables(tables);
 
   // check multiply with LUT:
   int g = 137; //10001001
@@ -44,6 +43,16 @@ int main()
   printf("the result is %d\n", r5);
   printBinary(r5);
 
+  // check polynomial operations
+  int arr1[4] = {137, 1, 4, 1};
+  int arr2[3] = {1, 2, -1};
+  struct Polynomial *poly1 = newPolynomial(arr1, 4);
+
+  struct Polynomial * retval = gf_poly_scale(poly1, 42, tables);
+
+  printPolynomial(retval);
+
+  delPolynomial(poly1);
 
   delTables(tables);
 

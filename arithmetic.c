@@ -161,4 +161,14 @@ int gf_inverse_MR_BCH_8bits_LUT(int x, struct Tables *tables)
     return *(tables->gf_exp + 255 - *(tables->gf_log + x));
 }
 
+struct Polynomial *gf_poly_scale(struct Polynomial *p, int x, struct Tables *tables)
+{
+    printPolynomial(p);
+    for (int i = 0; i < p->poly_size; i++)
+    {
+        *(p->ploy_arr + i) = gf_mul_MR_BCH_8bits_LUT(*(p->ploy_arr + i), x, tables);
+    }
+    return p;
+}
+
 
