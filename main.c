@@ -69,6 +69,17 @@ int main()
   delPolynomial(ret_val1);
   printf("\n");
 
+  // check multiply operation:
+  int arr4[4] = {1, 1, 1, 1};
+  int arr5[3] = {1, 1, 1};
+  struct Polynomial *poly4 = newPolynomial(arr4, 4);
+  struct Polynomial *poly5 = newPolynomial(arr5, 3);
+  struct Polynomial * ret_val2 = gf_poly_mul(poly4, poly5, tables);
+  printPolynomial(ret_val2);
+  delPolynomial(poly4);
+  delPolynomial(poly5);
+  delPolynomial(ret_val2);
+
   delTables(tables);
 
   return 0;

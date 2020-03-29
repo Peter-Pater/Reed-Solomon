@@ -34,3 +34,5 @@ int gf_pow_MR_BCH_8bits_LUT(int, int, struct Tables *);
 struct Polynomial *gf_poly_scale(struct Polynomial *, int, struct Tables *);
 
 struct Polynomial *gf_poly_add(struct Polynomial *, struct Polynomial *);
+
+struct Polynomial *gf_poly_mul(struct Polynomial *, struct Polynomial *, struct Tables *);

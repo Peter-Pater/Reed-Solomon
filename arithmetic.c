@@ -173,8 +173,6 @@ struct Polynomial *gf_poly_scale(struct Polynomial *p, int x, struct Tables *tab
 
 struct Polynomial *gf_poly_add(struct Polynomial *p, struct Polynomial *q)
 {
-    printPolynomial(p);
-    printPolynomial(q);
     int ret_size = 0;
     if (p->poly_size > q->poly_size)
     {
@@ -193,7 +191,7 @@ struct Polynomial *gf_poly_add(struct Polynomial *p, struct Polynomial *q)
 
     if (ret_val->ploy_arr == NULL)
     {
-        free (ret_val);
+        free(ret_val);
         return NULL;
     }
 
@@ -205,6 +203,42 @@ struct Polynomial *gf_poly_add(struct Polynomial *p, struct Polynomial *q)
     for (int i = 0; i < q->poly_size; i++)
     {
         *(ret_val->ploy_arr + i + ret_size - q->poly_size) ^= *(q->ploy_arr + i);
+    }
+
+    return ret_val;
+}
+
+struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struct Tables *tables)
+{
+    printPolynomial(p);
+    printPolynomial(q);
+    struct Polynomial *ret_val = malloc(sizeof(struct Polynomial));
+    if (ret_val == NULL)
+    {
+        return NULL;
+    }
+    ret_val->poly_size = (p->poly_size + q->poly_size - 1);
+
+    ret_val->ploy_arr = malloc(ret_val->poly_size * sizeof(int));
+
+    for (int i = 0; i < ret_val->poly_size; i++)
+    {
+        *(ret_val->ploy_arr + i) = 0;
+    }
+
+    if (ret_val->ploy_arr == NULL)
+    {
+        free(ret_val);
+        return NULL;
+    }
+
+    for (int j = 0; j < q->poly_size; j++)
+    {
+        for (int i = 0; i < p->poly_size; i++)
+        {
+            ret_val->ploy_arr[i+j] = gf_add_BCH_8bits(ret_val->ploy_arr[i+j], 
+            gf_mul_MR_BCH_8bits_LUT(*(p->ploy_arr + i), *(q->ploy_arr + j), tables));
+        }
     }
 
     return ret_val;

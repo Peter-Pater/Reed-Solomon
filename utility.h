@@ -20,4 +20,4 @@ struct Polynomial *newPolynomial(int *, size_t);
 
 void delPolynomial(struct Polynomial *);
 
-void printPolynomial(struct Polynomial *);
+void printPolynomial(struct Polynomial *poly);
