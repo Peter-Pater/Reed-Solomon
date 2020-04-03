@@ -22,3 +22,5 @@ struct Polynomial *gf_poly_add(struct Polynomial *, struct Polynomial *);
 struct Polynomial *gf_poly_mul(struct Polynomial *, struct Polynomial *, struct Tables *);
 
 int gf_poly_eval(struct Polynomial *, int, struct Tables *);
+
+struct Polynomial *rs_generator_poly(int, struct Tables *);

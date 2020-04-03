@@ -80,6 +80,12 @@ void test(){
     delPolynomial(poly5);
     delPolynomial(ret_val2);
 
+    printf("check rs_generator\n");
+    int nsym = 10;
+    struct Polynomial *gen = rs_generator_poly(nsym, tables);
+    printPolynomial(gen);
+    delPolynomial(gen);
+
     delTables(tables);
 }
 

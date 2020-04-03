@@ -146,8 +146,8 @@ struct Polynomial *gf_poly_add(struct Polynomial *p, struct Polynomial *q)
 // poly multiplication
 struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struct Tables *tables)
 {
-    printPolynomial(p);
-    printPolynomial(q);
+    // printPolynomial(p);
+    // printPolynomial(q);
     struct Polynomial *ret_val = malloc(sizeof(struct Polynomial));
     if (ret_val == NULL)
     {
@@ -189,4 +189,19 @@ int gf_poly_eval(struct Polynomial *p, int x, struct Tables *tables)
         y = gf_mul_MR_BCH_8bits_LUT(y, x, tables) ^ *(p->ploy_arr + i);
     }
     return y;
+}
+
+// rs generator: given number of symbols, generate an unreducible generator polynomial
+struct Polynomial *rs_generator_poly(int nsym, struct Tables *table){
+    int arr_g[1] = {1};
+    struct Polynomial *g = newPolynomial(arr_g, 1);
+    for (int i = 0; i < nsym; i++){
+        int arr_temp[2] = {1, gf_pow_MR_BCH_8bits_LUT(2, i, table)};
+        struct Polynomial *temp = newPolynomial(arr_temp, 2);
+        struct Polynomial *old_g = g;
+        g = gf_poly_mul(g, temp, table);
+        delPolynomial(temp);
+        delPolynomial(old_g);
+    }
+    return g;
 }
