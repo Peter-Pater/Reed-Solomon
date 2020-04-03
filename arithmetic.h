@@ -9,6 +9,8 @@ int gf_mul_BCH_8bits(int, int);
 
 int gf_mul_MR_BCH_8bits(int, int, int);
 
+int gf_mul_MR_BCH_8bits_RPM(int x, int y, int prime_polynomial);
+
 int table_generator(int);
 
 struct Tables

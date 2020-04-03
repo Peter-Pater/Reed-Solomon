@@ -33,7 +33,23 @@ int gf_mul_MR_BCH_8bits(int x, int y, int prime_polynomial)
     {
         result = carry_less_long_div(result, prime_polynomial);
     }
-    
+
+    return result;
+}
+
+// multiplication using the Russian Peasant Multiplication algorithm
+int gf_mul_MR_BCH_8bits_RPM(int x, int y, int prime_polynomial){
+    int result = 0;
+    while (y > 0){
+        if (y & 1){
+            result = gf_add_BCH_8bits(result, x);
+        }
+        y = y >> 1;
+        x = x << 1;
+        if (prime_polynomial > 0 && (x & 256)){
+            x = x ^ prime_polynomial;
+        }
+    }
     return result;
 }
 
@@ -80,7 +96,7 @@ struct Tables *newTables(int prime_polynomial, size_t sz)
 
     retVal->gf_exp = malloc(2 * sz * sizeof(int));
     retVal->gf_log = malloc(sz * sizeof(int));
-    if (retVal->gf_exp == NULL || retVal->gf_log == NULL) 
+    if (retVal->gf_exp == NULL || retVal->gf_log == NULL)
     {
         free (retVal);
         return NULL;
@@ -236,7 +252,7 @@ struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struc
     {
         for (int i = 0; i < p->poly_size; i++)
         {
-            ret_val->ploy_arr[i+j] = gf_add_BCH_8bits(ret_val->ploy_arr[i+j], 
+            ret_val->ploy_arr[i+j] = gf_add_BCH_8bits(ret_val->ploy_arr[i+j],
             gf_mul_MR_BCH_8bits_LUT(*(p->ploy_arr + i), *(q->ploy_arr + j), tables));
         }
     }
