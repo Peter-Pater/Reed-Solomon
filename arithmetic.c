@@ -72,7 +72,7 @@ int gf_div_MR_BCH_8bits_LUT(int x, int y, struct Tables *tables)
 {
     if (y == 0)
     {
-        print("Error: divisor is zero!")
+        printf("Error: divisor is zero!\n");
         exit(1);
     }
     if (x == 0)
@@ -94,7 +94,7 @@ int gf_inverse_MR_BCH_8bits_LUT(int x, struct Tables *tables)
     return *(tables->gf_exp + 255 - *(tables->gf_log + x));
 }
 
-// poly multiplication: p = p * x, where p is a polynomial and x is an integer
+// poly multiplication with integer: p = p * x, where p is a polynomial and x is an integer
 struct Polynomial *gf_poly_scale(struct Polynomial *p, int x, struct Tables *tables)
 {
     printPolynomial(p);
@@ -105,6 +105,7 @@ struct Polynomial *gf_poly_scale(struct Polynomial *p, int x, struct Tables *tab
     return p;
 }
 
+// poly addition
 struct Polynomial *gf_poly_add(struct Polynomial *p, struct Polynomial *q)
 {
     int ret_size = 0;
@@ -142,6 +143,7 @@ struct Polynomial *gf_poly_add(struct Polynomial *p, struct Polynomial *q)
     return ret_val;
 }
 
+// poly multiplication
 struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struct Tables *tables)
 {
     printPolynomial(p);
@@ -178,6 +180,7 @@ struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struc
     return ret_val;
 }
 
+// Evaluation: given x and the coefficients of a polynomial, convert it into a numeric number (integer)
 int gf_poly_eval(struct Polynomial *p, int x, struct Tables *tables)
 {
     int y = *(p->ploy_arr);
