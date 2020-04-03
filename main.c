@@ -23,7 +23,7 @@ void test(){
     printf("check multiply with modular reduction:\n");
     int e = 137; //10001001
     int f = 42; //00101010
-    int r3 = gf_mul_MR_BCH_8bits(e, f, prime_polynomial);
+    int r3 = gf_mul_MR_BCH(e, f, prime_polynomial, 8);
     printf("the result is %d\n", r3);
     printBinary(r3);
     printf("\n");
