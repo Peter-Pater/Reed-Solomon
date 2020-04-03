@@ -10,6 +10,22 @@ int bit_length(int);
 
 int carry_less_long_div(int, int);
 
+int gf_mul_MR_BCH_8bits(int, int, int);
+
+struct Tables
+{
+    int *gf_exp;
+    size_t gf_exp_size;
+    int *gf_log;
+    size_t gf_log_size;
+};
+
+struct Tables *newTables(int, size_t);
+
+void delTables(struct Tables *);
+
+void printTables(struct Tables *);
+
 struct Polynomial
 {
     size_t poly_size;

@@ -28,12 +28,6 @@ void test(){
     printBinary(r3);
     printf("\n");
 
-    printf("check multiply with modular reduction using Russian Peasant Multiplication algorithm:\n");
-    r3 = gf_mul_MR_BCH_8bits_RPM(e, f, prime_polynomial);
-    printf("the result is %d\n", r3);
-    printBinary(r3);
-    printf("\n");
-
     struct Tables *tables = newTables(prime_polynomial, 256);
     // printTables(tables);
 
