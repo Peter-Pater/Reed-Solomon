@@ -211,7 +211,7 @@ struct Polynomial *rs_generator_poly(int nsym, struct Tables *table){
     return g;
 }
 
-// polynomial division
+// polynomial division, given a dividend and a divisor, fill the given pointer for qoutient and remainder.
 void gf_poly_div(struct Polynomial *qoutient, struct Polynomial *remainder, struct Polynomial *dividend, struct Polynomial *divisor, struct Tables *table){
     int *msg_out = malloc(dividend->poly_size * sizeof(int));
     memcpy(msg_out, dividend->poly_arr, dividend->poly_size * sizeof(int));
@@ -240,8 +240,10 @@ void gf_poly_div(struct Polynomial *qoutient, struct Polynomial *remainder, stru
     // remainder = newPolynomial(remain, separator);
     remainder->poly_size = separator;
     remainder->poly_arr = remain;
+    free(msg_out);
 }
 
+// Encode!
 int *rs_encode_msg(int *msg_in, int msg_size, int nsym, struct Tables *table){
     struct Polynomial *gen = rs_generator_poly(nsym, table);
     struct Polynomial *qoutient = malloc(sizeof(struct Polynomial));
@@ -270,5 +272,9 @@ int *rs_encode_msg(int *msg_in, int msg_size, int nsym, struct Tables *table){
     // printf("\n");
 
     memcpy(padded_msg_in + msg_size, remainder->poly_arr, remainder->poly_size * sizeof(int));
+    delPolynomial(gen);
+    delPolynomial(qoutient);
+    delPolynomial(remainder);
+    delPolynomial(dividend);
     return padded_msg_in;
 }

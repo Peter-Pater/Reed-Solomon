@@ -91,9 +91,10 @@ void test(){
     printf("check encoding\n");
     nsym = 10;
     int msg_in[16] = {0x40, 0xd2, 0x75, 0x47, 0x76, 0x17, 0x32, 0x06, 0x27, 0x26, 0x96, 0xc6, 0xc6, 0x96, 0x70, 0xec};
+
     int *encoded = rs_encode_msg(msg_in, sizeof(msg_in)/sizeof(int), nsym, tables);
     printf("msg in is: \n");
-    for (int i = 0; i < 16; i++){
+    for (int i = 0; i < sizeof(msg_in)/sizeof(int); i++){
         printf("%d ", msg_in[i]);
     }
     printf("\n");
