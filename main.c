@@ -79,13 +79,32 @@ void test(){
     delPolynomial(poly4);
     delPolynomial(poly5);
     delPolynomial(ret_val2);
+    printf("\n");
 
     printf("check rs_generator\n");
-    int nsym = 10;
+    int nsym = 4;
     struct Polynomial *gen = rs_generator_poly(nsym, tables);
     printPolynomial(gen);
     delPolynomial(gen);
+    printf("\n");
 
+    printf("check encoding\n");
+    nsym = 10;
+    int msg_in[16] = {0x40, 0xd2, 0x75, 0x47, 0x76, 0x17, 0x32, 0x06, 0x27, 0x26, 0x96, 0xc6, 0xc6, 0x96, 0x70, 0xec};
+    int *encoded = rs_encode_msg(msg_in, sizeof(msg_in)/sizeof(int), nsym, tables);
+    printf("msg in is: \n");
+    for (int i = 0; i < 16; i++){
+        printf("%d ", msg_in[i]);
+    }
+    printf("\n");
+
+    printf("encoded msg is: \n");
+    for (int i = 0; i < sizeof(msg_in)/sizeof(int) + nsym; i++){
+        printf("%d ", encoded[i]);
+    }
+    printf("\n");
+    // 188 42 144 19 107 175 239 253 75 224
+    // 0xbc 0x2a 0x90 0x13 0x6b 0xaf 0xef 0xfd 0x4b 0xe0
     delTables(tables);
 }
 

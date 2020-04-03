@@ -195,9 +195,9 @@ struct Polynomial *newPolynomial(int *arr, size_t sz)
         return NULL;
     }
 
-    ret_val->ploy_arr = malloc(sz * sizeof(int));
+    ret_val->poly_arr = malloc(sz * sizeof(int));
 
-    if (ret_val->ploy_arr == NULL)
+    if (ret_val->poly_arr == NULL)
     {
         free (ret_val);
         return NULL;
@@ -207,7 +207,7 @@ struct Polynomial *newPolynomial(int *arr, size_t sz)
 
     for (int i = 0; i < sz; i++)
     {
-        *(ret_val->ploy_arr + i) = *(arr + i);
+        *(ret_val->poly_arr + i) = *(arr + i);
     }
 
     return ret_val;
@@ -217,7 +217,7 @@ void delPolynomial(struct Polynomial *poly)
 {
     if (poly != NULL)
     {
-        free(poly->ploy_arr);
+        free(poly->poly_arr);
         free(poly);
     }
 }
@@ -228,7 +228,7 @@ void printPolynomial(struct Polynomial *poly)
     printf("the coefficients of poly1 is: ");
     for (int i = 0; i < poly->poly_size; i++)
     {
-        printf("%d ", *(poly->ploy_arr+i));
+        printf("%d ", *(poly->poly_arr+i));
     }
     printf("\n");
 }

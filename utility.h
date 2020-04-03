@@ -29,7 +29,7 @@ void printTables(struct Tables *);
 struct Polynomial
 {
     size_t poly_size;
-    int *ploy_arr;
+    int *poly_arr;
 };
 
 struct Polynomial *newPolynomial(int *, size_t);

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "arithmetic.h"
 
 // carry-less addition (use XOR)
@@ -100,7 +101,7 @@ struct Polynomial *gf_poly_scale(struct Polynomial *p, int x, struct Tables *tab
     printPolynomial(p);
     for (int i = 0; i < p->poly_size; i++)
     {
-        *(p->ploy_arr + i) = gf_mul_MR_BCH_8bits_LUT(*(p->ploy_arr + i), x, tables);
+        *(p->poly_arr + i) = gf_mul_MR_BCH_8bits_LUT(*(p->poly_arr + i), x, tables);
     }
     return p;
 }
@@ -122,9 +123,9 @@ struct Polynomial *gf_poly_add(struct Polynomial *p, struct Polynomial *q)
     }
     ret_val->poly_size = ret_size;
 
-    ret_val->ploy_arr = malloc(ret_size * sizeof(int));
+    ret_val->poly_arr = malloc(ret_size * sizeof(int));
 
-    if (ret_val->ploy_arr == NULL)
+    if (ret_val->poly_arr == NULL)
     {
         free(ret_val);
         return NULL;
@@ -132,12 +133,12 @@ struct Polynomial *gf_poly_add(struct Polynomial *p, struct Polynomial *q)
 
     for (int i = 0; i < p->poly_size; i++)
     {
-        *(ret_val->ploy_arr + i + ret_size - p->poly_size) = *(p->ploy_arr + i);
+        *(ret_val->poly_arr + i + ret_size - p->poly_size) = *(p->poly_arr + i);
     }
 
     for (int i = 0; i < q->poly_size; i++)
     {
-        *(ret_val->ploy_arr + i + ret_size - q->poly_size) ^= *(q->ploy_arr + i);
+        *(ret_val->poly_arr + i + ret_size - q->poly_size) ^= *(q->poly_arr + i);
     }
 
     return ret_val;
@@ -155,14 +156,14 @@ struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struc
     }
     ret_val->poly_size = (p->poly_size + q->poly_size - 1);
 
-    ret_val->ploy_arr = malloc(ret_val->poly_size * sizeof(int));
+    ret_val->poly_arr = malloc(ret_val->poly_size * sizeof(int));
 
     for (int i = 0; i < ret_val->poly_size; i++)
     {
-        *(ret_val->ploy_arr + i) = 0;
+        *(ret_val->poly_arr + i) = 0;
     }
 
-    if (ret_val->ploy_arr == NULL)
+    if (ret_val->poly_arr == NULL)
     {
         free(ret_val);
         return NULL;
@@ -172,8 +173,8 @@ struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struc
     {
         for (int i = 0; i < p->poly_size; i++)
         {
-            ret_val->ploy_arr[i+j] = gf_add_BCH_8bits(ret_val->ploy_arr[i+j],
-            gf_mul_MR_BCH_8bits_LUT(*(p->ploy_arr + i), *(q->ploy_arr + j), tables));
+            ret_val->poly_arr[i+j] = gf_add_BCH_8bits(ret_val->poly_arr[i+j],
+            gf_mul_MR_BCH_8bits_LUT(*(p->poly_arr + i), *(q->poly_arr + j), tables));
         }
     }
 
@@ -183,10 +184,10 @@ struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struc
 // Evaluation: given x and the coefficients of a polynomial, convert it into a numeric number (integer)
 int gf_poly_eval(struct Polynomial *p, int x, struct Tables *tables)
 {
-    int y = *(p->ploy_arr);
+    int y = *(p->poly_arr);
     for (int i = 1; i < p->poly_size; i++)
     {
-        y = gf_mul_MR_BCH_8bits_LUT(y, x, tables) ^ *(p->ploy_arr + i);
+        y = gf_mul_MR_BCH_8bits_LUT(y, x, tables) ^ *(p->poly_arr + i);
     }
     return y;
 }
@@ -204,4 +205,66 @@ struct Polynomial *rs_generator_poly(int nsym, struct Tables *table){
         delPolynomial(old_g);
     }
     return g;
+}
+
+// polynomial division
+void gf_poly_div(struct Polynomial *qoutient, struct Polynomial *remainder, struct Polynomial *dividend, struct Polynomial *divisor, struct Tables *table){
+    int *msg_out = malloc(dividend->poly_size * sizeof(int));
+    memcpy(msg_out, dividend->poly_arr, dividend->poly_size * sizeof(int));
+    for (int i = 0; i < dividend->poly_size - divisor->poly_size + 1; i++){
+        int coef = msg_out[i];
+        // check that coef is not 0
+        if (coef){
+            for (int j = 1; j < divisor->poly_size; j++){
+                if (*(divisor->poly_arr + j)){
+                    msg_out[i + j] ^= gf_mul_MR_BCH_8bits_LUT(*(divisor->poly_arr + j), coef, table);
+                }
+            }
+        }
+    }
+    // separtor is the length of remainder (TODO: what if the length of remainder is 0?)
+    int separator = divisor->poly_size - 1;
+
+    int *quo = malloc((dividend->poly_size - separator) * sizeof(int));
+    memcpy(quo, msg_out, (dividend->poly_size - separator) * sizeof(int));
+    // qoutient = newPolynomial(quo, dividend->poly_size - separator);
+    qoutient->poly_size = dividend->poly_size - separator;
+    qoutient->poly_arr = quo;
+
+    int *remain = malloc(sizeof(int) * separator);
+    memcpy(remain, msg_out + dividend->poly_size - separator, separator * sizeof(int));
+    // remainder = newPolynomial(remain, separator);
+    remainder->poly_size = separator;
+    remainder->poly_arr = remain;
+}
+
+int *rs_encode_msg(int *msg_in, int msg_size, int nsym, struct Tables *table){
+    struct Polynomial *gen = rs_generator_poly(nsym, table);
+    struct Polynomial *qoutient = malloc(sizeof(struct Polynomial));
+    struct Polynomial *remainder = malloc(sizeof(struct Polynomial));
+
+    printPolynomial(gen);
+
+    int *padded_msg_in = malloc((msg_size + gen->poly_size - 1) * sizeof(int));
+    memcpy(padded_msg_in, msg_in, msg_size * sizeof(int));
+
+    for (int i = msg_size; i < msg_size + gen->poly_size - 1; i++){
+        padded_msg_in[i] = 0;
+    }
+
+    // for (int i = 0; i < msg_size + gen->poly_size - 1; i++){
+    //     printf("%d ", padded_msg_in[i]);
+    // }
+    // printf("\n");
+
+    struct Polynomial *dividend = newPolynomial(padded_msg_in, msg_size + gen->poly_size - 1);
+    gf_poly_div(qoutient, remainder, dividend, gen, table);
+
+    // for (int i = 0; i < gen->poly_size - 1; i++){
+    //     printf("%d ", *(remainder->poly_arr + i));
+    // }
+    // printf("\n");
+
+    memcpy(padded_msg_in + msg_size, remainder->poly_arr, remainder->poly_size * sizeof(int));
+    return padded_msg_in;
 }
