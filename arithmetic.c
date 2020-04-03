@@ -57,6 +57,7 @@ int gf_mul_MR_BCH_8bits(int x, int y, int prime_polynomial){
     return result;
 }
 
+// multiplication using look up table
 int gf_mul_MR_BCH_8bits_LUT(int x, int y, struct Tables *tables)
 {
     if (x == 0 || y == 0)
@@ -66,10 +67,12 @@ int gf_mul_MR_BCH_8bits_LUT(int x, int y, struct Tables *tables)
     return *(tables->gf_exp + *(tables->gf_log + x) + *(tables->gf_log + y));
 }
 
+// division using look up table
 int gf_div_MR_BCH_8bits_LUT(int x, int y, struct Tables *tables)
 {
     if (y == 0)
     {
+        print("Error: divisor is zero!")
         exit(1);
     }
     if (x == 0)
@@ -79,16 +82,19 @@ int gf_div_MR_BCH_8bits_LUT(int x, int y, struct Tables *tables)
     return *(tables->gf_exp + (*(tables->gf_log + x) + 255 - *(tables->gf_log + y)) % 255);
 }
 
+// power using look up table
 int gf_pow_MR_BCH_8bits_LUT(int x, int power, struct Tables *tables)
 {
     return *(tables->gf_exp + (*(tables->gf_log + x) * power) % 255);
 }
 
+// inverse using look up table
 int gf_inverse_MR_BCH_8bits_LUT(int x, struct Tables *tables)
 {
     return *(tables->gf_exp + 255 - *(tables->gf_log + x));
 }
 
+// poly multiplication: p = p * x, where p is a polynomial and x is an integer
 struct Polynomial *gf_poly_scale(struct Polynomial *p, int x, struct Tables *tables)
 {
     printPolynomial(p);
