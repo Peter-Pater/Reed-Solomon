@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 
 void printBinary(int);
@@ -10,7 +11,7 @@ int bit_length(int);
 
 int carry_less_long_div(int, int);
 
-int gf_mul_MR_BCH_8bits(int, int, int);
+int gf_mul_MR_BCH(int, int, int, int);
 
 struct Tables
 {

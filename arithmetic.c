@@ -42,7 +42,7 @@ int gf_mul_BCH_8bits(int x, int y)
 // }
 
 // carry-less multiplication using the Russian Peasant Multiplication algorithm
-int gf_mul_MR_BCH_8bits(int x, int y, int prime_polynomial){
+int gf_mul_MR_BCH(int x, int y, int prime_polynomial, int bits){
     int result = 0;
     while (y > 0){
         if (y & 1){
@@ -50,7 +50,8 @@ int gf_mul_MR_BCH_8bits(int x, int y, int prime_polynomial){
         }
         y = y >> 1;
         x = x << 1;
-        if (prime_polynomial > 0 && (x & 256)){
+        int temp = pow(2, bits);
+        if (prime_polynomial > 0 && (x & temp)){
             x = x ^ prime_polynomial;
         }
     }
@@ -79,19 +80,22 @@ int gf_div_MR_BCH_8bits_LUT(int x, int y, struct Tables *tables)
     {
         return 0;
     }
-    return *(tables->gf_exp + (*(tables->gf_log + x) + 255 - *(tables->gf_log + y)) % 255);
+    int log_size = tables->gf_log_size - 1;
+    return *(tables->gf_exp + (*(tables->gf_log + x) + log_size - *(tables->gf_log + y)) % log_size);
 }
 
 // power using look up table
 int gf_pow_MR_BCH_8bits_LUT(int x, int power, struct Tables *tables)
 {
-    return *(tables->gf_exp + (*(tables->gf_log + x) * power) % 255);
+    int log_size = tables->gf_log_size - 1;
+    return *(tables->gf_exp + (*(tables->gf_log + x) * power) % log_size);
 }
 
 // inverse using look up table
 int gf_inverse_MR_BCH_8bits_LUT(int x, struct Tables *tables)
 {
-    return *(tables->gf_exp + 255 - *(tables->gf_log + x));
+    int log_size = tables->gf_log_size - 1;
+    return *(tables->gf_exp + log_size - *(tables->gf_log + x));
 }
 
 // poly multiplication with integer: p = p * x, where p is a polynomial and x is an integer

@@ -107,7 +107,7 @@ int table_generator(int prime_polynomial)
     {
         *(gf_exp + i) = x;
         *(gf_log + x) = i;
-        x = gf_mul_MR_BCH_8bits(x, 2, prime_polynomial);
+        x = gf_mul_MR_BCH(x, 2, prime_polynomial, 8);
     }
     for (int i = 255; i < 512; i++)
     {
@@ -147,15 +147,15 @@ struct Tables *newTables(int prime_polynomial, size_t sz)
     retVal->gf_log_size = sz;
 
     int x = 1;
-    for (int i = 0; i < 255; i++)
+    for (int i = 0; i < sz - 1; i++)
     {
         *(retVal->gf_exp + i) = x;
         *(retVal->gf_log + x) = i;
-        x = gf_mul_MR_BCH_8bits(x, 2, prime_polynomial);
+        x = gf_mul_MR_BCH(x, 2, prime_polynomial, 8);
     }
-    for (int i = 255; i < 512; i++)
+    for (int i = sz - 1; i < 2 * sz; i++)
     {
-        *(retVal->gf_exp + i) = *(retVal->gf_exp + i - 255);
+        *(retVal->gf_exp + i) = *(retVal->gf_exp + i - (1 * sz - 1));
     }
 
     return retVal;
@@ -176,12 +176,12 @@ void delTables(struct Tables *tables)
 void printTables(struct Tables *tables)
 {
     printf("gf_exp_table:\n");
-    for (int i = 0; i < 512; i++)
+    for (int i = 0; i < tables->gf_exp_size; i++)
     {
         printf("gf_exp[%d] = %d\n", i, *(tables->gf_exp + i));
     }
     printf("\ngf_log_table:\n");
-    for (int i = 0; i < 256; i++)
+    for (int i = 0; i < (tables->gf_log_size - 1); i++)
     {
         printf("gf_log[%d] = %d\n", i, *(tables->gf_log + i));
     }
