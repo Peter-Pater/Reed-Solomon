@@ -243,38 +243,3 @@ void gf_poly_div(struct Polynomial *qoutient, struct Polynomial *remainder, stru
     free(msg_out);
 }
 
-// Encode!
-int *rs_encode_msg(int *msg_in, int msg_size, int nsym, struct Tables *table){
-    struct Polynomial *gen = rs_generator_poly(nsym, table);
-    struct Polynomial *qoutient = malloc(sizeof(struct Polynomial));
-    struct Polynomial *remainder = malloc(sizeof(struct Polynomial));
-
-    printPolynomial(gen);
-
-    int *padded_msg_in = malloc((msg_size + gen->poly_size - 1) * sizeof(int));
-    memcpy(padded_msg_in, msg_in, msg_size * sizeof(int));
-
-    for (int i = msg_size; i < msg_size + gen->poly_size - 1; i++){
-        padded_msg_in[i] = 0;
-    }
-
-    // for (int i = 0; i < msg_size + gen->poly_size - 1; i++){
-    //     printf("%d ", padded_msg_in[i]);
-    // }
-    // printf("\n");
-
-    struct Polynomial *dividend = newPolynomial(padded_msg_in, msg_size + gen->poly_size - 1);
-    gf_poly_div(qoutient, remainder, dividend, gen, table);
-
-    // for (int i = 0; i < gen->poly_size - 1; i++){
-    //     printf("%d ", *(remainder->poly_arr + i));
-    // }
-    // printf("\n");
-
-    memcpy(padded_msg_in + msg_size, remainder->poly_arr, remainder->poly_size * sizeof(int));
-    delPolynomial(gen);
-    delPolynomial(qoutient);
-    delPolynomial(remainder);
-    delPolynomial(dividend);
-    return padded_msg_in;
-}

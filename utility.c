@@ -224,8 +224,8 @@ void delPolynomial(struct Polynomial *poly)
 
 void printPolynomial(struct Polynomial *poly)
 {
-    printf("the size of poly1 is %lu\n", poly->poly_size);
-    printf("the coefficients of poly1 is: ");
+    printf("the size of poly is %lu\n", poly->poly_size);
+    printf("the coefficients of poly is: ");
     for (int i = 0; i < poly->poly_size; i++)
     {
         printf("%d ", *(poly->poly_arr+i));

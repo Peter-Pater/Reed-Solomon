@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "arithmetic.h"
+#include "stdrscoding.h"
 
 void test(){
     printf("check add/sub:\n");
@@ -91,21 +91,36 @@ void test(){
     printf("check encoding\n");
     nsym = 10;
     int msg_in[16] = {0x40, 0xd2, 0x75, 0x47, 0x76, 0x17, 0x32, 0x06, 0x27, 0x26, 0x96, 0xc6, 0xc6, 0x96, 0x70, 0xec};
-
-    int *encoded = rs_encode_msg(msg_in, sizeof(msg_in)/sizeof(int), nsym, tables);
+    struct Polynomial *msg_in_poly = newPolynomial(msg_in, 16);
     printf("msg in is: \n");
-    for (int i = 0; i < sizeof(msg_in)/sizeof(int); i++){
-        printf("%d ", msg_in[i]);
-    }
+    printPolynomial(msg_in_poly);
     printf("\n");
+
+    struct Polynomial *encoded_msg = rs_encode_msg(msg_in_poly, nsym, tables);
 
     printf("encoded msg is: \n");
-    for (int i = 0; i < sizeof(msg_in)/sizeof(int) + nsym; i++){
-        printf("%d ", encoded[i]);
-    }
+    printPolynomial(encoded_msg);
     printf("\n");
+    // remainder:
     // 188 42 144 19 107 175 239 253 75 224
     // 0xbc 0x2a 0x90 0x13 0x6b 0xaf 0xef 0xfd 0x4b 0xe0
+
+    printf("check Syndrome Calculation\n");
+    printf("not corrupted message\n");
+    struct Polynomial *syndrome_poly = rs_calc_syndromes(encoded_msg, nsym, tables);
+    printPolynomial(syndrome_poly);
+    printf("the check result is %d\n", rs_check(syndrome_poly, nsym, tables));
+    delPolynomial(syndrome_poly);
+
+    printf("\ncorrupted message\n");
+    *(encoded_msg->poly_arr) = 0;
+    struct Polynomial *syndrome_poly1 = rs_calc_syndromes(encoded_msg, nsym, tables);
+    printPolynomial(syndrome_poly1);
+    printf("the check result is %d\n", rs_check(syndrome_poly1, nsym, tables));
+    delPolynomial(syndrome_poly1);
+
+    delPolynomial(msg_in_poly);
+    delPolynomial(encoded_msg);
     delTables(tables);
 }
 
