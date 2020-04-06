@@ -222,6 +222,16 @@ void delPolynomial(struct Polynomial *poly)
     }
 }
 
+struct Polynomial* reversePolynomial(struct Polynomial *poly)
+{
+    struct Polynomial *ret_val = newPolynomial(poly->poly_arr, poly->poly_size);
+    for (int i = poly->poly_size - 1; i >= 0; i--)
+    {
+        *(ret_val->poly_arr + i) = *(poly->poly_arr + poly->poly_size - i - 1);
+    }
+    return ret_val;
+}
+
 void printPolynomial(struct Polynomial *poly)
 {
     printf("the size of poly is %lu\n", poly->poly_size);
@@ -229,6 +239,50 @@ void printPolynomial(struct Polynomial *poly)
     for (int i = 0; i < poly->poly_size; i++)
     {
         printf("%d ", *(poly->poly_arr+i));
+    }
+    printf("\n");
+}
+
+struct DynamicArray *newDynamicArray(size_t capacity)
+{
+    struct DynamicArray *ret_val = malloc(sizeof(struct DynamicArray));
+    ret_val->data = NULL;
+    ret_val->arr_size = 0;
+    ret_val->capacity = capacity;
+    return ret_val;
+}
+
+void delDynamicArray(struct DynamicArray * array)
+{
+    if (array != NULL)
+    {
+        free(array->data);
+        free(array);
+    }
+}
+
+void push_back(struct DynamicArray * array, int val)
+{
+    if (array->arr_size == 0)
+    {
+        array->data = malloc(sizeof(int) * array->capacity);
+    }
+    if (array->arr_size + 1 == array->capacity)
+    {
+        array->capacity *= 2;
+        array->data = realloc(array->data, sizeof(int) * array->capacity);
+    }
+    *(array->data + array->arr_size) = val;
+    array->arr_size++;
+}
+
+void printDynamicArray(struct DynamicArray * array)
+{
+    printf("the size of the arr is %zu\n", array->arr_size);
+    printf("the capacity of the arr is %zu\n", array->capacity);
+    for (int i = 0; i < array->arr_size; i++)
+    {
+        printf(" %d,", array->data[i]);
     }
     printf("\n");
 }

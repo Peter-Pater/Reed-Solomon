@@ -37,4 +37,21 @@ struct Polynomial *newPolynomial(int *, size_t);
 
 void delPolynomial(struct Polynomial *);
 
+struct Polynomial* reversePolynomial(struct Polynomial *);
+
 void printPolynomial(struct Polynomial *poly);
+
+struct DynamicArray
+{
+    size_t arr_size;
+    size_t capacity;
+    int *data;
+};
+
+struct DynamicArray *newDynamicArray(size_t);
+
+void delDynamicArray(struct DynamicArray *);
+
+void push_back(struct DynamicArray *, int);
+
+void printDynamicArray(struct DynamicArray *);

@@ -242,4 +242,3 @@ void gf_poly_div(struct Polynomial *qoutient, struct Polynomial *remainder, stru
     remainder->poly_arr = remain;
     free(msg_out);
 }
-

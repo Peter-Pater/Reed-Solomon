@@ -117,10 +117,26 @@ void test(){
     struct Polynomial *syndrome_poly1 = rs_calc_syndromes(encoded_msg, nsym, tables);
     printPolynomial(syndrome_poly1);
     printf("the check result is %d\n", rs_check(syndrome_poly1, nsym, tables));
+
+    //check erasure correction
+    printf("\ncheck erasure correction\n");
+    int err_pos_arr[1] = {0};
+    struct Polynomial *err_pos = newPolynomial(err_pos_arr, 1);
+
+    printf("the msg before EC is :\n");
+    printPolynomial(encoded_msg);
+
+    encoded_msg = rs_correct_errata(encoded_msg, syndrome_poly1, err_pos, tables);
+
+    printf("the msg after EC is :\n");
+    printPolynomial(encoded_msg);
+
     delPolynomial(syndrome_poly1);
+    delPolynomial(err_pos);
 
     delPolynomial(msg_in_poly);
     delPolynomial(encoded_msg);
+
     delTables(tables);
 }
 
