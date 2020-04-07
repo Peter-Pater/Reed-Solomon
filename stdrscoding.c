@@ -48,20 +48,14 @@ struct Polynomial *rs_calc_syndromes(struct Polynomial *encoded_msg, int nsym, s
 // Automatically check if a message is corrupted or not
 int rs_check(struct Polynomial *syndrome_poly, int nsym, struct Tables *table)
 {
-    int max = 0;
     for (int i = 0; i < syndrome_poly->poly_size; i++)
     {
-        if (*(syndrome_poly->poly_arr+i) > max)
+        if (*(syndrome_poly->poly_arr+i) > 0)
         {
-            max = *(syndrome_poly->poly_arr+i);
+            return 1;
         }
     }
-    if (max == 0)
-    {
-        return 0;
-    } else {
-        return 1;
-    }
+    return 0;
 }
 
 struct Polynomial *rs_find_errata_locator(struct Polynomial *e_pos, struct Tables *table)
@@ -70,7 +64,7 @@ struct Polynomial *rs_find_errata_locator(struct Polynomial *e_pos, struct Table
     struct Polynomial *ret_val = newPolynomial(e_loc, 1);
     for (int i = 0; i < e_pos->poly_size; i++)
     {
-        int temp[2] = {gf_pow_MR_BCH_8bits_LUT(2, i, table), 0};
+        int temp[2] = {gf_pow_MR_BCH_8bits_LUT(2, *(e_pos->poly_arr + i), table), 0};
         struct Polynomial *temp_poly1 = newPolynomial(temp, 2);
         int temp_arr[1] = {1};
         struct Polynomial *temp_poly2 = newPolynomial(temp_arr, 1);
