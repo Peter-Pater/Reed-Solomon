@@ -146,3 +146,110 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
     msg_in = gf_poly_add(msg_in, E);
     return msg_in;
 }
+
+struct Polynomial *rs_find_error_locator(struct Polynomial *synd, int nsym, struct Polynomial *erase_loc, struct Tables *table)
+{
+    struct Polynomial *err_loc = NULL;
+    struct Polynomial *old_loc = NULL;
+    int erase_count = 0;
+    if (erase_loc != NULL && erase_loc->poly_size != 0)
+    {
+        erase_count = erase_loc->poly_size;
+        err_loc = newPolynomial(erase_loc->poly_arr, erase_loc->poly_size);
+        old_loc = newPolynomial(erase_loc->poly_arr, erase_loc->poly_size);
+        for (int i = 0; i < erase_loc->poly_size; i++)
+        {
+            *(err_loc->poly_arr + i) = *(erase_loc->poly_arr + i);
+            *(old_loc->poly_arr + i) = *(erase_loc->poly_arr + i);
+        }
+    }  else
+    {
+        int temp_arr[1] = {1};
+        err_loc = newPolynomial(temp_arr, 1);
+        old_loc = newPolynomial(temp_arr, 1);
+    }
+    int synd_shift = 0;
+    if (synd->poly_size > nsym)
+    {
+        synd_shift = synd->poly_size - nsym;
+    }
+    for (int i = 0; i < nsym - erase_count; i++)
+    {
+        int K = 0;
+        if (erase_loc != NULL && erase_loc->poly_size != 0)
+        {
+            K = erase_count + i + synd_shift;
+        } else
+        {
+            K = i + synd_shift;
+        }
+        int delta = *(synd->poly_arr + K);
+        for (int j = 1; j < err_loc->poly_size; j++)
+        {
+            delta ^= gf_mul_MR_BCH_8bits_LUT(*(err_loc->poly_arr + err_loc->poly_size - j - 2), *(synd->poly_arr + K - j), table);
+        }
+        int temp_arr[old_loc->poly_size+1];
+        for (int k = 0; i < (old_loc->poly_size + 1); k++)
+        {
+            if (k == old_loc->poly_size)
+            {
+                *(temp_arr + k) = 0;
+            } else
+            {
+                *(temp_arr + k) = *(old_loc->poly_arr + k);
+            }
+        }
+        struct Polynomial *temp_loc = newPolynomial(temp_arr, old_loc->poly_size + 1);
+        delPolynomial(old_loc);
+        old_loc = temp_loc;
+        if (delta != 0)
+        {
+            if (old_loc->poly_size > err_loc->poly_size)
+            {
+                struct Polynomial* new_loc = gf_poly_scale(old_loc, delta, table);
+                old_loc = gf_poly_scale(err_loc, gf_inverse_MR_BCH_8bits_LUT(delta, table), table);
+                err_loc = new_loc;
+            }
+            err_loc = gf_poly_add(err_loc, gf_poly_scale(old_loc, delta, table));
+        }
+    }
+    while (err_loc->poly_size != 0 && *(err_loc->poly_arr) == 0)
+    {
+        int temp_arr[err_loc->poly_size - 1];
+        for (int k = 1; k < err_loc->poly_size; k++)
+        {
+            *(temp_arr + k - 1) = *(err_loc->poly_arr + k);
+        }
+        struct Polynomial *new_err_loc = newPolynomial(temp_arr, err_loc->poly_size - 1);
+        delPolynomial(err_loc);
+        err_loc = new_err_loc;
+    }
+    int errs = err_loc->poly_size - 1;
+    if ((errs - erase_count) * 2 + erase_count > nsym)
+    {
+        printf("Too many errors to correct\n");
+        exit(1);
+    }
+    return err_loc;
+}
+
+struct Polynomial *rs_find_errors(struct Polynomial *err_loc, int nmess, struct Tables *table)
+{
+    int errs = err_loc->poly_size - 1;
+    struct DynamicArray *err_pos_arr = newDynamicArray(10);
+    for (int i = 0; i < nmess; i ++)
+    {
+        if (gf_poly_eval(err_loc, gf_pow_MR_BCH_8bits_LUT(2, i, table), table) == 0)
+        {
+            push_back(err_pos_arr, nmess - 1 - i);
+        }
+    }
+    if (err_pos_arr->arr_size != errs)
+    {
+        printf("Too many (or few) errors found by Chien Search for the errata locator polynomial!\n");
+        exit(1);
+    }
+    struct Polynomial *err_pos = newPolynomial(err_pos_arr->data, err_pos_arr->arr_size);
+    delDynamicArray(err_pos_arr);
+    return err_pos;
+}
