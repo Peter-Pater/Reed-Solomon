@@ -32,15 +32,12 @@ struct Polynomial *rs_encode_msg(struct Polynomial *msg_in, int nsym, struct Tab
 // Syndrome calculation
 struct Polynomial *rs_calc_syndromes(struct Polynomial *encoded_msg, int nsym, struct Tables *table)
 {
-    int arr[nsym];
-    for (int i = 0; i < nsym; i++)
+    int arr[nsym + 1];
+    arr[0] = 0;
+    struct Polynomial *synd = newPolynomial(arr, nsym + 1);
+    for (int i = 1; i < nsym + 1; i++)
     {
-        arr[i] = 0;
-    }
-    struct Polynomial *synd = newPolynomial(arr, nsym);
-    for (int i = 0; i < nsym; i++)
-    {
-        *(synd->poly_arr + i) = gf_poly_eval(encoded_msg, gf_pow_MR_BCH_8bits_LUT(2, i, table), table);
+        *(synd->poly_arr + i) = gf_poly_eval(encoded_msg, gf_pow_MR_BCH_8bits_LUT(2, i - 1, table), table);
     }
     return synd;
 }
@@ -68,7 +65,7 @@ struct Polynomial *rs_find_errata_locator(struct Polynomial *e_pos, struct Table
         struct Polynomial *temp_poly1 = newPolynomial(temp, 2);
         int temp_arr[1] = {1};
         struct Polynomial *temp_poly2 = newPolynomial(temp_arr, 1);
-        ret_val = gf_poly_mul(ret_val, gf_poly_add(temp_poly2, temp_poly1), table);
+        ret_val = gf_poly_mul(ret_val, gf_poly_add(temp_poly1, temp_poly2), table);
     }
     return ret_val;
 }
@@ -95,6 +92,7 @@ struct Polynomial *rs_find_error_evaluator(struct Polynomial *synd, struct Polyn
     return remainder;
 }
 
+// Error fixation 4/9: the modulo function in C is different from python, and syndrome lacked [0] as prefix
 struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomial * synd, struct Polynomial *err_pos, struct Tables *table)
 {
     struct Polynomial *coef_pos = newPolynomial(err_pos->poly_arr, err_pos->poly_size);
@@ -103,15 +101,15 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
         *(coef_pos->poly_arr + i) = msg_in->poly_size - 1 - *(err_pos->poly_arr + i);
     }
     struct Polynomial *err_loc = rs_find_errata_locator(coef_pos, table);
-    struct Polynomial *err_eval = reversePolynomial(rs_find_error_evaluator(reversePolynomial(synd), err_loc, err_loc->poly_size - 1, table));
+    struct Polynomial *err_eval = rs_find_error_evaluator(reversePolynomial(synd), err_loc, err_loc->poly_size - 1, table);
 
-    printPolynomial(coef_pos);
+    // printPolynomial(coef_pos);
     struct Polynomial *X = newPolynomial(coef_pos->poly_arr, coef_pos->poly_size);
     for (int i = 0; i < coef_pos->poly_size; i++)
     {
         *(X->poly_arr + i) = gf_pow_MR_BCH_8bits_LUT(2, *(coef_pos->poly_arr + i) - 255, table);
     }
-    printPolynomial(X);
+    // printPolynomial(X);
 
     struct Polynomial *E = newPolynomial(msg_in->poly_arr, msg_in->poly_size);
     for (int i = 0; i < E->poly_size; i++)
@@ -119,9 +117,10 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
         *(E->poly_arr + i) = 0;
     }
     int Xlength = X->poly_size;
-    for (int i = 0; i < X->poly_size; i++)
+    for (int i = 0; i < Xlength; i++)
     {
         int Xi_inv = gf_inverse_MR_BCH_8bits_LUT(*(X->poly_arr + i), table);
+        // printf("X_inv: %d\n", Xi_inv);
         struct DynamicArray *err_loc_prime_tmp = newDynamicArray(10);
         for (int j = 0; j < Xlength; j++)
         {
@@ -130,14 +129,18 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
                 push_back(err_loc_prime_tmp, gf_sub_BCH_8bits(1, gf_mul_MR_BCH_8bits_LUT(Xi_inv, *(X->poly_arr + j), table)));
             }
         }
+        // printDynamicArray(err_loc_prime_tmp);
         int err_loc_prime = 1;
         for (int k = 0; k < err_loc_prime_tmp->arr_size; k++)
         {
             err_loc_prime = gf_mul_MR_BCH_8bits_LUT(err_loc_prime, *(err_loc_prime_tmp->data + k), table);
         }
+        // printf("err_loc_prime : %d\n", err_loc_prime);
         delDynamicArray(err_loc_prime_tmp);
-        int y = gf_poly_eval(reversePolynomial(err_eval), Xi_inv, table);
+        int y = gf_poly_eval(err_eval, Xi_inv, table);
+        // printf("y: %d\n", y);
         y = gf_mul_MR_BCH_8bits_LUT(gf_pow_MR_BCH_8bits_LUT(*(X->poly_arr + i), 1, table), y, table);
+        // printf("y: %d\n", y);
         if (err_loc_prime == 0)
         {
             printf("Could not find error magnitude!!!\n");
@@ -146,6 +149,7 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
         int magnitude = gf_div_MR_BCH_8bits_LUT(y, err_loc_prime, table);
         *(E->poly_arr + *(err_pos->poly_arr + i)) = magnitude;
     }
+    printPolynomial(E);
     msg_in = gf_poly_add(msg_in, E);
     return msg_in;
 }
@@ -194,7 +198,7 @@ struct Polynomial *rs_find_error_locator(struct Polynomial *synd, int nsym, stru
         {
             delta ^= gf_mul_MR_BCH_8bits_LUT(*(err_loc->poly_arr + err_loc->poly_size - j - 1), *(synd->poly_arr + K - j), table);
         }
-        int temp_arr[old_loc->poly_size+1];        
+        int temp_arr[old_loc->poly_size+1];
         for (int k = 0; k < (old_loc->poly_size + 1); k++)
         {
             if (k == old_loc->poly_size)
@@ -261,4 +265,27 @@ struct Polynomial *rs_find_errors(struct Polynomial *err_loc, int nmess, struct 
     struct Polynomial *err_pos = newPolynomial(err_pos_arr->data, err_pos_arr->arr_size);
     delDynamicArray(err_pos_arr);
     return err_pos;
+}
+
+// Syndrome calculation with rs_forney_syndromes
+struct Polynomial *rs_forney_syndromes(struct Polynomial *synd, struct Polynomial *err_pos, int nmess, struct Tables *table)
+{
+    struct Polynomial *err_pos_reversed = newPolynomial(err_pos->poly_arr, err_pos->poly_size);
+    for (int i = 0; i < err_pos->poly_size; i++)
+    {
+        *(err_pos_reversed->poly_arr + i) = nmess - 1 - *(err_pos->poly_arr + i);
+    }
+    int fsynd_arr[synd->poly_size - 1];
+    for (int i = 0; i < synd->poly_size - 1; i++){
+        fsynd_arr[i] = *(synd->poly_arr + i);
+    }
+    struct Polynomial *fsynd = newPolynomial(fsynd_arr, synd->poly_size - 1);
+    for (int i = 0; i < err_pos->poly_size; i++){
+        int x = gf_pow_MR_BCH_8bits_LUT(2, *(err_pos_reversed->poly_arr + i), table);
+        for (int j = 0; j < fsynd->poly_size - 1; j++){
+            *(fsynd->poly_arr + j) = gf_mul_MR_BCH_8bits_LUT(*(fsynd->poly_arr + j), x, table) ^ *(fsynd->poly_arr + j + 1);
+        }
+    }
+    delPolynomial(err_pos_reversed);
+    return fsynd;
 }

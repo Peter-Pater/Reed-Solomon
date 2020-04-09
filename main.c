@@ -29,7 +29,7 @@ void test(){
     printf("\n");
 
     struct Tables *tables = newTables(prime_polynomial, 256);
-    // printTables(tables);
+    printTables(tables);
 
     printf("check multiply with LUT:\n");
     int g = 137; //10001001
@@ -120,15 +120,14 @@ void test(){
 
     //check erasure correction
     printf("\ncheck erasure correction\n");
-    int err_pos_arr[1] = {0};
+    int err_pos_arr[1] = {1};
     struct Polynomial *err_pos = newPolynomial(err_pos_arr, 1);
 
     printf("the msg before erasure correction is :\n");
     printPolynomial(encoded_msg);
 
-    encoded_msg = rs_correct_errata(encoded_msg, syndrome_poly1, err_pos, tables);
-
     printf("the msg after erasure correction is :\n");
+    encoded_msg = rs_correct_errata(encoded_msg, syndrome_poly1, err_pos, tables);
     printPolynomial(encoded_msg);
 
     delPolynomial(syndrome_poly1);
@@ -137,14 +136,20 @@ void test(){
 
     //check error correction
     printf("\ncheck error correction\n");
-
     *(encoded_msg->poly_arr) = 6;
     *(encoded_msg->poly_arr + 10) = 7;
     *(encoded_msg->poly_arr + 20) = 8;
-    printf("the msg before error correction is :\n");
+    printf("the corrupted msg before error correction is :\n");
     printPolynomial(encoded_msg);
     struct Polynomial *syndrome_poly2 = rs_calc_syndromes(encoded_msg, nsym, tables);
-    struct Polynomial *err_loc = rs_find_error_locator(syndrome_poly2, nsym, NULL, tables);
+    int *erase_pos_arr;
+    struct Polynomial *erase_pos = newPolynomial(erase_pos_arr, 0);
+    struct Polynomial *fsynd = rs_forney_syndromes(syndrome_poly2, erase_pos, encoded_msg->poly_size, tables);
+    printPolynomial(syndrome_poly2);
+    // printPolynomial(fsynd);
+
+    // this function should be able to find both error and erasure, set erasure position to NULL due to the given test cases
+    struct Polynomial *err_loc = rs_find_error_locator(fsynd, nsym, NULL, tables);
     printf("find error position(s):\n");
     struct Polynomial *pos = rs_find_errors(reversePolynomial(err_loc), encoded_msg->poly_size, tables);
     printPolynomial(pos);

@@ -89,7 +89,12 @@ int gf_div_MR_BCH_8bits_LUT(int x, int y, struct Tables *tables)
 int gf_pow_MR_BCH_8bits_LUT(int x, int power, struct Tables *tables)
 {
     int log_size = tables->gf_log_size - 1;
-    return *(tables->gf_exp + (*(tables->gf_log + x) * power) % log_size);
+    if (power >= 0){
+        return *(tables->gf_exp + (*(tables->gf_log + x) * power) % log_size);
+    }else{
+        // printf("%d\n", (*(tables->gf_log + x) * power) % log_size + log_size);
+        return *(tables->gf_exp + (*(tables->gf_log + x) * power) % log_size + log_size);
+    }
 }
 
 // inverse using look up table

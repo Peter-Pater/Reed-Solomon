@@ -234,7 +234,7 @@ struct Polynomial* reversePolynomial(struct Polynomial *poly)
 
 void printPolynomial(struct Polynomial *poly)
 {
-    printf("the size of poly is %lu\n", poly->poly_size);
+    // printf("the size of poly is %lu\n", poly->poly_size);
     printf("the coefficients of poly is: ");
     for (int i = 0; i < poly->poly_size; i++)
     {
@@ -282,7 +282,7 @@ void printDynamicArray(struct DynamicArray * array)
     printf("the capacity of the arr is %zu\n", array->capacity);
     for (int i = 0; i < array->arr_size; i++)
     {
-        printf(" %d,", array->data[i]);
+        printf("%d ", array->data[i]);
     }
     printf("\n");
 }
