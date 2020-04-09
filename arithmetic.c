@@ -102,12 +102,17 @@ int gf_inverse_MR_BCH_8bits_LUT(int x, struct Tables *tables)
 // poly multiplication with integer: p = p * x, where p is a polynomial and x is an integer
 struct Polynomial *gf_poly_scale(struct Polynomial *p, int x, struct Tables *tables)
 {
-    printPolynomial(p);
+    int arr[p->poly_size];
     for (int i = 0; i < p->poly_size; i++)
     {
-        *(p->poly_arr + i) = gf_mul_MR_BCH_8bits_LUT(*(p->poly_arr + i), x, tables);
+        *(arr + i) = 0;
     }
-    return p;
+    struct Polynomial *ret_val = newPolynomial(arr, p->poly_size);
+    for (int i = 0; i < p->poly_size; i++)
+    {
+        *(ret_val->poly_arr + i) = gf_mul_MR_BCH_8bits_LUT(*(p->poly_arr + i), x, tables);
+    }
+    return ret_val;
 }
 
 // poly addition
@@ -151,8 +156,6 @@ struct Polynomial *gf_poly_add(struct Polynomial *p, struct Polynomial *q)
 // poly multiplication
 struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struct Tables *tables)
 {
-    // printPolynomial(p);
-    // printPolynomial(q);
     struct Polynomial *ret_val = malloc(sizeof(struct Polynomial));
     if (ret_val == NULL)
     {
