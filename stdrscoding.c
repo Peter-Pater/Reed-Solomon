@@ -173,6 +173,8 @@ struct Polynomial *rs_find_error_locator(struct Polynomial *synd, int nsym, stru
     {
         synd_shift = synd->poly_size - nsym;
     }
+    // printf("erase count is %d\n", erase_count);
+    // printf("nsym is %d\n", nsym);
     for (int i = 0; i < nsym - erase_count; i++)
     {
         int K = 0;
@@ -181,12 +183,13 @@ struct Polynomial *rs_find_error_locator(struct Polynomial *synd, int nsym, stru
             K = erase_count + i + synd_shift;
         } else
         {
+            // printf("here + %d\n", i);
             K = i + synd_shift;
         }
         int delta = *(synd->poly_arr + K);
         for (int j = 1; j < err_loc->poly_size; j++)
         {
-            delta ^= gf_mul_MR_BCH_8bits_LUT(*(err_loc->poly_arr + err_loc->poly_size - j - 2), *(synd->poly_arr + K - j), table);
+            delta ^= gf_mul_MR_BCH_8bits_LUT(*(err_loc->poly_arr + err_loc->poly_size - j - 1), *(synd->poly_arr + K - j), table);
         }
         int temp_arr[old_loc->poly_size+1];        
         for (int k = 0; k < (old_loc->poly_size + 1); k++)
@@ -236,21 +239,21 @@ struct Polynomial *rs_find_error_locator(struct Polynomial *synd, int nsym, stru
 
 struct Polynomial *rs_find_errors(struct Polynomial *err_loc, int nmess, struct Tables *table)
 {
-    printPolynomial(err_loc);
+    // printPolynomial(err_loc);
     int errs = err_loc->poly_size - 1;
     struct DynamicArray *err_pos_arr = newDynamicArray(10);
-    printf("nmess is : %d\n", nmess);
+    // printf("nmess is : %d\n", nmess);
     for (int i = 0; i < nmess; i++)
     {
         if (gf_poly_eval(err_loc, gf_pow_MR_BCH_8bits_LUT(2, i, table), table) == 0)
         {
-            printf("here!!!\n");
+            // printf("here!!!\n");
             push_back(err_pos_arr, nmess - 1 - i);
         }
     }
     if (err_pos_arr->arr_size != errs)
     {
-        printf("err_pos_arr_size is : %zu ; errs_size is : %d\n", err_pos_arr->arr_size, errs);
+        // printf("err_pos_arr_size is : %zu ; errs_size is : %d\n", err_pos_arr->arr_size, errs);
         printf("Too many (or few) errors found by Chien Search for the errata locator polynomial!\n");
         exit(1);
     }

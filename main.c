@@ -138,19 +138,24 @@ void test(){
     //check error correction
     printf("\ncheck error correction\n");
 
-    printf("the msg before error correction is :\n");
-    printPolynomial(encoded_msg);
-
     *(encoded_msg->poly_arr) = 6;
     *(encoded_msg->poly_arr + 10) = 7;
     *(encoded_msg->poly_arr + 20) = 8;
+    printf("the msg before error correction is :\n");
+    printPolynomial(encoded_msg);
     struct Polynomial *syndrome_poly2 = rs_calc_syndromes(encoded_msg, nsym, tables);
     // printf("debug!!!!!\n");
     struct Polynomial *err_loc = rs_find_error_locator(syndrome_poly2, nsym, NULL, tables);
-    printPolynomial(err_loc);
+    // printPolynomial(err_loc);
     // printf("debug!!!!!\n");
+    printf("find error location(s):\n");
     struct Polynomial *pos = rs_find_errors(reversePolynomial(err_loc), encoded_msg->poly_size, tables);
     printPolynomial(pos);
+
+    encoded_msg = rs_correct_errata(encoded_msg, syndrome_poly2, pos, tables);
+
+    printf("the msg after error correction is :\n");
+    printPolynomial(encoded_msg);
 
     delPolynomial(encoded_msg);
     delTables(tables);
