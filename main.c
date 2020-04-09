@@ -144,11 +144,8 @@ void test(){
     printf("the msg before error correction is :\n");
     printPolynomial(encoded_msg);
     struct Polynomial *syndrome_poly2 = rs_calc_syndromes(encoded_msg, nsym, tables);
-    // printf("debug!!!!!\n");
     struct Polynomial *err_loc = rs_find_error_locator(syndrome_poly2, nsym, NULL, tables);
-    // printPolynomial(err_loc);
-    // printf("debug!!!!!\n");
-    printf("find error location(s):\n");
+    printf("find error position(s):\n");
     struct Polynomial *pos = rs_find_errors(reversePolynomial(err_loc), encoded_msg->poly_size, tables);
     printPolynomial(pos);
 

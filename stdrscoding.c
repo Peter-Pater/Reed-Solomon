@@ -105,11 +105,14 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
     struct Polynomial *err_loc = rs_find_errata_locator(coef_pos, table);
     struct Polynomial *err_eval = reversePolynomial(rs_find_error_evaluator(reversePolynomial(synd), err_loc, err_loc->poly_size - 1, table));
 
+    printPolynomial(coef_pos);
     struct Polynomial *X = newPolynomial(coef_pos->poly_arr, coef_pos->poly_size);
     for (int i = 0; i < coef_pos->poly_size; i++)
     {
         *(X->poly_arr + i) = gf_pow_MR_BCH_8bits_LUT(2, *(coef_pos->poly_arr + i) - 255, table);
     }
+    printPolynomial(X);
+
     struct Polynomial *E = newPolynomial(msg_in->poly_arr, msg_in->poly_size);
     for (int i = 0; i < E->poly_size; i++)
     {
@@ -133,8 +136,8 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
             err_loc_prime = gf_mul_MR_BCH_8bits_LUT(err_loc_prime, *(err_loc_prime_tmp->data + k), table);
         }
         delDynamicArray(err_loc_prime_tmp);
-
-        int y = gf_mul_MR_BCH_8bits_LUT(gf_pow_MR_BCH_8bits_LUT(*(X->poly_arr + i), 1, table), gf_poly_eval(reversePolynomial(err_eval), Xi_inv, table), table);
+        int y = gf_poly_eval(reversePolynomial(err_eval), Xi_inv, table);
+        y = gf_mul_MR_BCH_8bits_LUT(gf_pow_MR_BCH_8bits_LUT(*(X->poly_arr + i), 1, table), y, table);
         if (err_loc_prime == 0)
         {
             printf("Could not find error magnitude!!!\n");
@@ -242,7 +245,6 @@ struct Polynomial *rs_find_errors(struct Polynomial *err_loc, int nmess, struct 
     // printPolynomial(err_loc);
     int errs = err_loc->poly_size - 1;
     struct DynamicArray *err_pos_arr = newDynamicArray(10);
-    // printf("nmess is : %d\n", nmess);
     for (int i = 0; i < nmess; i++)
     {
         if (gf_poly_eval(err_loc, gf_pow_MR_BCH_8bits_LUT(2, i, table), table) == 0)
@@ -253,7 +255,6 @@ struct Polynomial *rs_find_errors(struct Polynomial *err_loc, int nmess, struct 
     }
     if (err_pos_arr->arr_size != errs)
     {
-        // printf("err_pos_arr_size is : %zu ; errs_size is : %d\n", err_pos_arr->arr_size, errs);
         printf("Too many (or few) errors found by Chien Search for the errata locator polynomial!\n");
         exit(1);
     }
