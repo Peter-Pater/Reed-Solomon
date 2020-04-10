@@ -120,7 +120,7 @@ void test(){
 
     //check erasure correction
     printf("\ncheck erasure correction\n");
-    int err_pos_arr[1] = {1};
+    int err_pos_arr[1] = {0};
     struct Polynomial *err_pos = newPolynomial(err_pos_arr, 1);
 
     printf("the msg before erasure correction is :\n");
