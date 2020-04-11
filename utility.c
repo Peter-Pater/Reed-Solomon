@@ -243,6 +243,17 @@ void printPolynomial(struct Polynomial *poly)
     printf("\n");
 }
 
+void printPolynomialAsMessage(struct Polynomial *poly, int k)
+{
+    // printf("the size of poly is %lu\n", poly->poly_size);
+    printf("The message is: ");
+    for (int i = 0; i < k; i++)
+    {
+        printf("%c ", *(poly->poly_arr+i));
+    }
+    printf("\n");
+}
+
 struct DynamicArray *newDynamicArray(size_t capacity)
 {
     struct DynamicArray *ret_val = malloc(sizeof(struct DynamicArray));

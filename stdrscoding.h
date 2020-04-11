@@ -19,4 +19,5 @@ struct Polynomial *rs_find_errors(struct Polynomial *, int, struct Tables *);
 
 struct Polynomial *rs_forney_syndromes(struct Polynomial *, struct Polynomial *, int, struct Tables *);
 
-struct Polynomial * rs_correct_msg(struct Polynomial *, int, struct Polynomial *, struct Tables *);
+// struct Polynomial * rs_correct_msg(struct Polynomial *, int, struct Polynomial *, struct Tables *);
+struct Polynomial *rs_correct_msg(struct Polynomial *, int, struct Tables *);

@@ -41,6 +41,8 @@ struct Polynomial* reversePolynomial(struct Polynomial *);
 
 void printPolynomial(struct Polynomial *poly);
 
+void printPolynomialAsMessage(struct Polynomial *poly, int k);
+
 struct DynamicArray
 {
     size_t arr_size;
