@@ -145,7 +145,7 @@ void test(){
     int *erase_pos_arr;
     struct Polynomial *erase_pos = newPolynomial(erase_pos_arr, 0);
     struct Polynomial *fsynd = rs_forney_syndromes(syndrome_poly2, erase_pos, encoded_msg->poly_size, tables);
-    printPolynomial(syndrome_poly2);
+    // printPolynomial(syndrome_poly2);
     // printPolynomial(fsynd);
 
     // this function should be able to find both error and erasure, set erasure position to NULL due to the given test cases
@@ -160,6 +160,39 @@ void test(){
     printPolynomial(encoded_msg);
 
     delPolynomial(encoded_msg);
+
+    //Example1
+    printf("\nexample1:\n");
+    int n = 20;
+    int k = 11;
+    char message[11] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+    int message_arr[11];
+    for (int i = 0; i < 11; i++)
+    {
+        *(message_arr + i) = *(message + i);
+    }
+    struct Polynomial *mesecc_poly = newPolynomial(message_arr, 11);
+    struct Polynomial *encoded_mesecc_poly = rs_encode_msg(mesecc_poly, n - k, tables);
+    printf("Original Encoded Message:\n");
+    printPolynomial(encoded_mesecc_poly);
+
+    //Tampering 6 characters of the message:
+    *(encoded_mesecc_poly->poly_arr + 0) = 0;
+    // *(encoded_mesecc_poly->poly_arr + 1) = 2;
+    *(encoded_mesecc_poly->poly_arr + 2) = 2;
+    // *(encoded_mesecc_poly->poly_arr + 3) = 2;
+    *(encoded_mesecc_poly->poly_arr + 4) = 2;
+    *(encoded_mesecc_poly->poly_arr + 5) = 2;
+
+    printf("Corrupted Encoded Message:\n");
+    printPolynomial(encoded_mesecc_poly);
+
+    // int erase_pos_arr_0[3] = {0, 1, 2};
+    // struct Polynomial *erase_pos_poly = newPolynomial(erase_pos_arr_0, 3);
+    struct Polynomial *corrected_message_poly = rs_correct_msg(encoded_mesecc_poly, n - k, NULL, tables);
+    printf("Repaired Message:\n");
+    printPolynomial(corrected_message_poly);
+    
     delTables(tables);
 }
 

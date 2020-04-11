@@ -7,8 +7,8 @@ struct Polynomial *rs_encode_msg(struct Polynomial *msg_in, int nsym, struct Tab
     struct Polynomial *qoutient = malloc(sizeof(struct Polynomial));
     struct Polynomial *remainder = malloc(sizeof(struct Polynomial));
 
-    printf("the generated polynomial is: \n");
-    printPolynomial(gen);
+    // printf("the generated polynomial is: \n");
+    // printPolynomial(gen);
 
     int *padded_msg_in = malloc((msg_in->poly_size + gen->poly_size - 1) * sizeof(int));
     memcpy(padded_msg_in, msg_in->poly_arr, msg_in->poly_size * sizeof(int));
@@ -149,7 +149,7 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
         int magnitude = gf_div_MR_BCH_8bits_LUT(y, err_loc_prime, table);
         *(E->poly_arr + *(err_pos->poly_arr + i)) = magnitude;
     }
-    printPolynomial(E);
+    // printPolynomial(E);
     msg_in = gf_poly_add(msg_in, E);
     return msg_in;
 }
@@ -270,22 +270,93 @@ struct Polynomial *rs_find_errors(struct Polynomial *err_loc, int nmess, struct 
 // Syndrome calculation with rs_forney_syndromes
 struct Polynomial *rs_forney_syndromes(struct Polynomial *synd, struct Polynomial *err_pos, int nmess, struct Tables *table)
 {
-    struct Polynomial *err_pos_reversed = newPolynomial(err_pos->poly_arr, err_pos->poly_size);
-    for (int i = 0; i < err_pos->poly_size; i++)
+    struct Polynomial *err_pos_reversed;
+    if (err_pos != NULL)
     {
-        *(err_pos_reversed->poly_arr + i) = nmess - 1 - *(err_pos->poly_arr + i);
+        err_pos_reversed = newPolynomial(err_pos->poly_arr, err_pos->poly_size);
+        for (int i = 0; i < err_pos->poly_size; i++)
+        {
+            *(err_pos_reversed->poly_arr + i) = nmess - 1 - *(err_pos->poly_arr + i);
+        }
     }
     int fsynd_arr[synd->poly_size - 1];
     for (int i = 0; i < synd->poly_size - 1; i++){
-        fsynd_arr[i] = *(synd->poly_arr + i);
+        *(fsynd_arr + i) = *(synd->poly_arr + i + 1);
     }
     struct Polynomial *fsynd = newPolynomial(fsynd_arr, synd->poly_size - 1);
-    for (int i = 0; i < err_pos->poly_size; i++){
-        int x = gf_pow_MR_BCH_8bits_LUT(2, *(err_pos_reversed->poly_arr + i), table);
-        for (int j = 0; j < fsynd->poly_size - 1; j++){
-            *(fsynd->poly_arr + j) = gf_mul_MR_BCH_8bits_LUT(*(fsynd->poly_arr + j), x, table) ^ *(fsynd->poly_arr + j + 1);
+    if (err_pos != NULL)
+    {
+        for (int i = 0; i < err_pos->poly_size; i++){
+            int x = gf_pow_MR_BCH_8bits_LUT(2, *(err_pos_reversed->poly_arr + i), table);
+            for (int j = 0; j < fsynd->poly_size - 1; j++){
+                *(fsynd->poly_arr + j) = gf_mul_MR_BCH_8bits_LUT(*(fsynd->poly_arr + j), x, table) ^ *(fsynd->poly_arr + j + 1);
+            }
         }
     }
-    delPolynomial(err_pos_reversed);
+    if (err_pos != NULL)
+    {
+        delPolynomial(err_pos_reversed);
+    }
     return fsynd;
+}
+
+struct Polynomial *rs_correct_msg(struct Polynomial *msg_in, int nsym, struct Polynomial *erase_pos, struct Tables *table)
+{
+    if (msg_in->poly_size > table->gf_log_size - 1)
+    {
+        printf("Message is too long (when max is 255)\n");
+        exit(1);
+    }
+    struct Polynomial *msg_out = newPolynomial(msg_in->poly_arr, msg_in->poly_size);
+    if (erase_pos != NULL)
+    {
+        for (int i = 0; i < erase_pos->poly_size; i++)
+        {
+            *(msg_out->poly_arr + *(erase_pos->poly_arr + i)) = 0;
+        }
+    }
+    if (erase_pos != NULL && erase_pos->poly_size > nsym)
+    {
+        printf("Too many erasures to correct\n");
+        exit(1);
+    }
+    struct Polynomial *synd = rs_calc_syndromes(msg_out, nsym, table);
+    if (rs_check(synd, nsym, table) == 0)
+    {
+        printf("no errors!!!\n");
+        return msg_out;
+    }
+    struct Polynomial *fsynd = rs_forney_syndromes(synd, erase_pos, msg_out->poly_size, table);
+    struct Polynomial *err_loc = rs_find_error_locator(fsynd, nsym, erase_pos, table);
+    struct Polynomial *err_pos = rs_find_errors(reversePolynomial(err_loc), msg_out->poly_size, table);
+    if (err_pos->poly_size == 0)
+    {
+        printf("Could not locate error\n");
+        exit(1);
+    }
+    if (erase_pos != NULL)
+    {
+        int pos_arr[0 + erase_pos->poly_size + err_pos->poly_size];
+        for (int j = 0 ; j < erase_pos->poly_size + err_pos->poly_size; j++)
+        {
+            if (j < erase_pos->poly_size)
+            {
+                *(pos_arr + j) = *(erase_pos->poly_arr + j);
+            } else
+            {
+                *(pos_arr + j) = *(err_pos->poly_arr + j - erase_pos->poly_size);
+            }
+        }
+        struct Polynomial *pos_poly = newPolynomial(pos_arr, erase_pos->poly_size + err_pos->poly_size);
+        msg_out = rs_correct_errata(msg_out, synd, pos_poly, table);
+    } else {
+        msg_out = rs_correct_errata(msg_out, synd, err_pos, table);
+    }
+    synd = rs_calc_syndromes(msg_out, nsym, table);
+    if (rs_check(synd, nsym, table) == 1)
+    {
+        printf("Could not correct message\n");
+        exit(1);
+    }
+    return msg_out;
 }
