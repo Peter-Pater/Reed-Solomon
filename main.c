@@ -164,27 +164,55 @@ void test(){
 
     //Example1
     printf("Example1:\n");
-    int n = 22;
-    int k = 12;
-    char message[12] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!'};
+    int n = 255;
+    int k = 240;
+    char message[240] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n'
+                          };
     int message_arr[k];
     for (int i = 0; i < k; i++)
     {
         *(message_arr + i) = *(message + i);
     }
-    // clock_t start, end;
-    // double time_taken;
-    // start = clock();
-    // end = clock();
-    // time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
-    // printf("%lf\n", time_taken);
+    clock_t start, end;
+    double time_taken;
+
 
     struct Polynomial *mesecc_poly = newPolynomial(message_arr, k);
-    struct Polynomial *encoded_mesecc_poly = rs_encode_msg(mesecc_poly, n - k, tables);
 
+    // start = clock();
+    // for (int i = 0; i < 42000; i++){
+    //     struct Polynomial *temp;
+    //     temp = rs_encode_msg(mesecc_poly, n - k, tables);
+    //     delPolynomial(temp);
+    // }
+    // end = clock();
+    // time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
+    // printf("time taken for encoding %lf\n", time_taken);
+
+    struct Polynomial *encoded_mesecc_poly = rs_encode_msg(mesecc_poly, n - k, tables);
     printf("Original Encoded Message:\n");
     printPolynomial(encoded_mesecc_poly);
     printf("\n");
+
     //Tampering 6 characters of the message:
     *(encoded_mesecc_poly->poly_arr + 0) = 0;
     *(encoded_mesecc_poly->poly_arr + 3) = 2;
@@ -199,6 +227,16 @@ void test(){
 
     // int erase_pos_arr_0[2] = {0, 2};
     // struct Polynomial *erase_pos_poly = newPolynomial(erase_pos_arr_0, 3);
+
+    // start = clock();
+    // for (int i = 0; i < 42000; i++){
+    //     struct Polynomial *temp;
+    //     temp = rs_correct_msg(encoded_mesecc_poly, n - k, tables);
+    //     delPolynomial(temp);
+    // }
+    // end = clock();
+    // time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
+    // printf("time taken for decoding %lf\n", time_taken);
 
     struct Polynomial *corrected_message_poly = rs_correct_msg(encoded_mesecc_poly, n - k, tables);
     printf("Repaired Message:\n");

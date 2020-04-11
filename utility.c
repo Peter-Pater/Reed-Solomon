@@ -235,7 +235,7 @@ struct Polynomial* reversePolynomial(struct Polynomial *poly)
 void printPolynomial(struct Polynomial *poly)
 {
     // printf("the size of poly is %lu\n", poly->poly_size);
-    printf("the coefficients of poly is: ");
+    printf("the coefficients of poly is: \n");
     for (int i = 0; i < poly->poly_size; i++)
     {
         printf("%d ", *(poly->poly_arr+i));
@@ -246,7 +246,7 @@ void printPolynomial(struct Polynomial *poly)
 void printPolynomialAsMessage(struct Polynomial *poly, int k)
 {
     // printf("the size of poly is %lu\n", poly->poly_size);
-    printf("The message is: ");
+    printf("The message is: \n");
     for (int i = 0; i < k; i++)
     {
         printf("%c ", *(poly->poly_arr+i));
