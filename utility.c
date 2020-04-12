@@ -1,8 +1,9 @@
+#include "math.h"
 #include "utility.h"
 
-void printBinary(int n)
+void printBinary(long n)
 {
-    int num = n;
+    long num = n;
 
     char *buf = (char*)malloc((n + 1) * sizeof(char));
 
@@ -28,7 +29,7 @@ void printBinary(int n)
     *p = '\0';
 
     reverse_string(buf);
-    printf("%d = %s\n", num, buf);
+    printf("%ld = %s\n", num, buf);
     free(buf);
 
 }
@@ -56,9 +57,9 @@ void reverse_string(char *str)
 
 }
 
-int bit_length(int n)
+long bit_length(long n)
 {
-    int bits = 0;
+    long bits = 0;
     while (n >> bits)
     {
         bits++;
@@ -66,20 +67,20 @@ int bit_length(int n)
     return bits;
 }
 
-int carry_less_long_div(int dividend, int divisor)
+long carry_less_long_div(long dividend, long divisor)
 {
-    int len_dividend = bit_length(dividend);
-    int len_divisor = bit_length(divisor);
+    long len_dividend = bit_length(dividend);
+    long len_divisor = bit_length(divisor);
 
-    // printf("dividend length is %d\n", len_dividend);
-    // printf("divisor length is %d\n", len_divisor);
+    // printf("dividend length is %ld\n", len_dividend);
+    // printf("divisor length is %ld\n", len_divisor);
 
     if (len_dividend < len_divisor)
     {
         return dividend;
     }
 
-    int pos = len_dividend - len_divisor;
+    long pos = len_dividend - len_divisor;
     while (pos >= 0)
     {
         if (dividend & (1 << (pos + len_divisor - 1)))
@@ -93,33 +94,33 @@ int carry_less_long_div(int dividend, int divisor)
 }
 
 // precompute the logarithm and anti-log tables for faster computation (NOT USED)
-int table_generator(int prime_polynomial)
+long table_generator(long prime_polynomial)
 {
-    int *gf_exp = malloc(512 * sizeof(int));
-    int *gf_log = malloc(256 * sizeof(int));
+    long *gf_exp = malloc(512 * sizeof(long));
+    long *gf_log = malloc(256 * sizeof(long));
     if (gf_exp == NULL || gf_log == NULL)
     {
         return -1;
     }
 
-    int x = 1;
-    for (int i = 0; i < 255; i++)
+    long x = 1;
+    for (long i = 0; i < 255; i++)
     {
         *(gf_exp + i) = x;
         *(gf_log + x) = i;
         x = gf_mul_MR_BCH(x, 2, prime_polynomial, 8);
     }
-    for (int i = 255; i < 512; i++)
+    for (long i = 255; i < 512; i++)
     {
         *(gf_exp + i) = *(gf_exp + i - 255);
     }
-    for (int i = 0; i < 512; i++)
+    for (long i = 0; i < 512; i++)
     {
-        printf("gf_exp[%d] = %d\n", i, *(gf_exp + i));
+        printf("gf_exp[%ld] = %ld\n", i, *(gf_exp + i));
     }
-    for (int i = 0; i < 256; i++)
+    for (long i = 0; i < 256; i++)
     {
-        printf("gf_log[%d] = %d\n", i, *(gf_log + i));
+        printf("gf_log[%ld] = %ld\n", i, *(gf_log + i));
     }
     free(gf_exp);
     free(gf_log);
@@ -127,16 +128,20 @@ int table_generator(int prime_polynomial)
 }
 
 // precompute the logarithm and anti-log tables for faster computation
-struct Tables *newTables(int prime_polynomial, size_t sz)
+struct Tables *newTables(long prime_polynomial, long bits)
 {
+    size_t sz = (long) pow(2.0, (double) bits);
+    // printf("%zu\n", sz);
     struct Tables *retVal = malloc(sizeof(struct Tables));
     if (retVal == NULL)
     {
         return NULL;
     }
 
-    retVal->gf_exp = malloc(2 * sz * sizeof(int));
-    retVal->gf_log = malloc(sz * sizeof(int));
+    retVal->gf_exp = malloc(2 * sz * sizeof(long));
+    retVal->gf_log = malloc(sz * sizeof(long));
+
+    // printf("here\n");
     if (retVal->gf_exp == NULL || retVal->gf_log == NULL)
     {
         free (retVal);
@@ -145,15 +150,17 @@ struct Tables *newTables(int prime_polynomial, size_t sz)
 
     retVal->gf_exp_size = 2 * sz;
     retVal->gf_log_size = sz;
+    // printf("here\n");
 
-    int x = 1;
-    for (int i = 0; i < sz - 1; i++)
+    long x = 1;
+    for (long i = 0; i < sz - 1; i++)
     {
         *(retVal->gf_exp + i) = x;
         *(retVal->gf_log + x) = i;
-        x = gf_mul_MR_BCH(x, 2, prime_polynomial, 8);
+        x = gf_mul_MR_BCH(x, 2, prime_polynomial, bits);
+        // printf("%ld\n", x);
     }
-    for (int i = sz - 1; i < 2 * sz; i++)
+    for (long i = sz - 1; i < 2 * sz; i++)
     {
         *(retVal->gf_exp + i) = *(retVal->gf_exp + i - (1 * sz - 1));
     }
@@ -176,18 +183,18 @@ void delTables(struct Tables *tables)
 void printTables(struct Tables *tables)
 {
     printf("gf_exp_table:\n");
-    for (int i = 0; i < tables->gf_exp_size; i++)
+    for (long i = 0; i < tables->gf_exp_size; i++)
     {
-        printf("gf_exp[%d] = %d\n", i, *(tables->gf_exp + i));
+        printf("gf_exp[%ld] = %ld\n", i, *(tables->gf_exp + i));
     }
     printf("\ngf_log_table:\n");
-    for (int i = 0; i < (tables->gf_log_size - 1); i++)
+    for (long i = 0; i < (tables->gf_log_size - 1); i++)
     {
-        printf("gf_log[%d] = %d\n", i, *(tables->gf_log + i));
+        printf("gf_log[%ld] = %ld\n", i, *(tables->gf_log + i));
     }
 }
 
-struct Polynomial *newPolynomial(int *arr, size_t sz)
+struct Polynomial *newPolynomial(long *arr, size_t sz)
 {
     struct Polynomial *ret_val = malloc(sizeof(struct Polynomial));
     if (ret_val == NULL)
@@ -195,7 +202,7 @@ struct Polynomial *newPolynomial(int *arr, size_t sz)
         return NULL;
     }
 
-    ret_val->poly_arr = malloc(sz * sizeof(int));
+    ret_val->poly_arr = malloc(sz * sizeof(long));
 
     if (ret_val->poly_arr == NULL)
     {
@@ -205,7 +212,7 @@ struct Polynomial *newPolynomial(int *arr, size_t sz)
 
     ret_val->poly_size = sz;
 
-    for (int i = 0; i < sz; i++)
+    for (long i = 0; i < sz; i++)
     {
         *(ret_val->poly_arr + i) = *(arr + i);
     }
@@ -225,7 +232,7 @@ void delPolynomial(struct Polynomial *poly)
 struct Polynomial* reversePolynomial(struct Polynomial *poly)
 {
     struct Polynomial *ret_val = newPolynomial(poly->poly_arr, poly->poly_size);
-    for (int i = poly->poly_size - 1; i >= 0; i--)
+    for (long i = poly->poly_size - 1; i >= 0; i--)
     {
         *(ret_val->poly_arr + i) = *(poly->poly_arr + poly->poly_size - i - 1);
     }
@@ -236,20 +243,20 @@ void printPolynomial(struct Polynomial *poly)
 {
     // printf("the size of poly is %lu\n", poly->poly_size);
     printf("the coefficients of poly is: \n");
-    for (int i = 0; i < poly->poly_size; i++)
+    for (long i = 0; i < poly->poly_size; i++)
     {
-        printf("%d ", *(poly->poly_arr+i));
+        printf("%ld ", *(poly->poly_arr+i));
     }
     printf("\n");
 }
 
-void printPolynomialAsMessage(struct Polynomial *poly, int k)
+void printPolynomialAsMessage(struct Polynomial *poly, long k)
 {
     // printf("the size of poly is %lu\n", poly->poly_size);
     printf("The message is: \n");
-    for (int i = 0; i < k; i++)
+    for (long i = 0; i < k; i++)
     {
-        printf("%c ", *(poly->poly_arr+i));
+        printf("%c ", (int) *(poly->poly_arr+i));
     }
     printf("\n");
 }
@@ -272,16 +279,16 @@ void delDynamicArray(struct DynamicArray * array)
     }
 }
 
-void push_back(struct DynamicArray * array, int val)
+void push_back(struct DynamicArray * array, long val)
 {
     if (array->arr_size == 0)
     {
-        array->data = malloc(sizeof(int) * array->capacity);
+        array->data = malloc(sizeof(long) * array->capacity);
     }
     if (array->arr_size + 1 == array->capacity)
     {
         array->capacity *= 2;
-        array->data = realloc(array->data, sizeof(int) * array->capacity);
+        array->data = realloc(array->data, sizeof(long) * array->capacity);
     }
     *(array->data + array->arr_size) = val;
     array->arr_size++;
@@ -291,9 +298,9 @@ void printDynamicArray(struct DynamicArray * array)
 {
     printf("the size of the arr is %zu\n", array->arr_size);
     printf("the capacity of the arr is %zu\n", array->capacity);
-    for (int i = 0; i < array->arr_size; i++)
+    for (long i = 0; i < array->arr_size; i++)
     {
-        printf("%d ", array->data[i]);
+        printf("%ld ", array->data[i]);
     }
     printf("\n");
 }

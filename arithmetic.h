@@ -1,30 +1,30 @@
 #include <stdio.h>
 #include "utility.h"
 
-int gf_add_BCH_8bits(int, int);
+long gf_add_BCH_8bits(long, long);
 
-int gf_sub_BCH_8bits(int, int);
+long gf_sub_BCH_8bits(long, long);
 
-int gf_mul_BCH_8bits(int, int);
+long gf_mul_BCH_8bits(long, long);
 
-int table_generator(int);
+long table_generator(long);
 
-int gf_mul_MR_BCH_8bits_LUT(int, int, struct Tables *);
+long gf_mul_MR_BCH_8bits_LUT(long, long, struct Tables *);
 
-int gf_div_MR_BCH_8bits_LUT(int, int, struct Tables *);
+long gf_div_MR_BCH_8bits_LUT(long, long, struct Tables *);
 
-int gf_pow_MR_BCH_8bits_LUT(int, int, struct Tables *);
+long gf_pow_MR_BCH_8bits_LUT(long, long, struct Tables *);
 
-int gf_inverse_MR_BCH_8bits_LUT(int, struct Tables *);
+long gf_inverse_MR_BCH_8bits_LUT(long, struct Tables *);
 
-struct Polynomial *gf_poly_scale(struct Polynomial *, int, struct Tables *);
+struct Polynomial *gf_poly_scale(struct Polynomial *, long, struct Tables *);
 
 struct Polynomial *gf_poly_add(struct Polynomial *, struct Polynomial *);
 
 struct Polynomial *gf_poly_mul(struct Polynomial *, struct Polynomial *, struct Tables *);
 
-int gf_poly_eval(struct Polynomial *, int, struct Tables *);
+long gf_poly_eval(struct Polynomial *, long, struct Tables *);
 
-struct Polynomial *rs_generator_poly(int, struct Tables *);
+struct Polynomial *rs_generator_poly(long, struct Tables *);
 
 void gf_poly_div(struct Polynomial *, struct Polynomial *, struct Polynomial *, struct Polynomial *, struct Tables *);
