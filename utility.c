@@ -256,7 +256,7 @@ void printPolynomialAsMessage(struct Polynomial *poly, long k)
     printf("The message is: \n");
     for (long i = 0; i < k; i++)
     {
-        printf("%c ", (int) *(poly->poly_arr+i));
+        printf("%c", (int) *(poly->poly_arr+i));
     }
     printf("\n");
 }
