@@ -1,4 +1,4 @@
-*.o
-main
+*/*.o
+*/main
 .vscode/
 .DS_Store
