@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-I.
-DEPS = stdrscoding.h arithmetic.h utility.h
-OBJ = main.o stdrscoding.o arithmetic.o utility.o
+DEPS = stdrscoding.h arithmetic.h utility.h comprs_arithmetic.h
+OBJ = main.o stdrscoding.o arithmetic.o utility.o comprs_arithmetic.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
