@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "comp_arithmetic.h"
 
 long gf_mul_comp(long x, long y, struct Tables *tables){
@@ -17,4 +18,8 @@ long gf_mul_comp(long x, long y, struct Tables *tables){
     printf("Lower order byte of result is: %ld\n", r0); // 44799
     // printf("end result is: %ld\n", (r1 << 8) + r0);
     return (r1 << 8) + r0;
+}
+
+long gf_mul_div(long x, long y, struct Tables *tables){
+    return 0;
 }

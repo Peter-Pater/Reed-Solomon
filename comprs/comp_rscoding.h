@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include "comp_arithmetic.h"
+#include "poly_comp_arithmetic.h"
 
 struct Polynomial *rs_encode_msg(struct Polynomial *, long, struct Tables *);
 
