@@ -3,24 +3,24 @@
 #include "comp_rscoding.h"
 
 void comprs_test(){
-    int prime_polynomial_16 = 69643; //10000001111011101
-    // 66525, 69643, 69765, 79555, 80075, 80967, 83211, 94317, 95361, 99439, 101303, 101615, 101959, 102231
-    struct Tables *tables_16 = newTables(prime_polynomial_16, 16);
-
+    // int prime_polynomial_16 = 69643; //10000001111011101
+    // // 66525, 69643, 69765, 79555, 80075, 80967, 83211, 94317, 95361, 99439, 101303, 101615, 101959, 102231
+    // struct Tables *tables_16 = newTables(prime_polynomial_16, 16);
+    //
     // just choose two numbers in field GF(2^16)
     long g1 = 989; // 0000001111011101
     long g2 = 9165; // 0010001111001101
-
-    // compute with big table
     printf("g1 = %ld, g2 = %ld\n", g1, g2);
-    printf("The result using regular 16-bits table = %ld\n", gf_mul_MR_BCH_8bits_LUT(g1, g2, tables_16));
-    delTables(tables_16);
+    //
+    // // compute with big table
+    // printf("The result using regular 16-bits table = %ld\n", gf_mul_MR_BCH_8bits_LUT(g1, g2, tables_16));
+    // delTables(tables_16);
 
     // now use 8-bit table
     // first half and second half:
     int prime_polynomial = 285; //100011101
-    struct Tables *tables_8 = newTables(prime_polynomial, 8);
-    printf("%ld\n", gf_mul_comp(g1, g2, tables_8));
+    struct Tables *tables = newTables(prime_polynomial, 8);
+    printf("result is: %ld\n", gf_mul_comp(g1, g2, tables));
 }
 
 int main()
