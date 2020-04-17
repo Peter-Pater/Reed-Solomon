@@ -3,7 +3,7 @@
 #include "stdrscoding.h"
 
 void stdrs_test(){
-    int bits = 8;
+    int bits = 16;
     int prime_polynomial = 285; //100011101
     int prime_polynomial_16 = 66525; //10000001111011101
     long prime_polynomial_32 = 4299161607; //100000000010000000000000000000111
@@ -12,14 +12,15 @@ void stdrs_test(){
     double time_taken;
 
     start = clock();
-    struct Tables *tables = newTables(prime_polynomial, bits);
+    struct Tables *tables = newTables(prime_polynomial_16, bits);
+    printTables(tables);
     end = clock();
     time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("time taken for precomputing the table is %lf\n", time_taken);
 
     //Example1
     printf("Example1:\n");
-    int n = 250;
+    int n = 255;
     int k = 240;
     char message[240] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',

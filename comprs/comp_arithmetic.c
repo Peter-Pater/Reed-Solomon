@@ -38,12 +38,14 @@ long gf_div_comp(long x, long y, struct Tables *tables){
 
 long gf_inverse_comp(long x, struct Tables *tables){
     long result = -1;
-    for (long i = 0; i < 65535; i++){
+    for (long i = 0; i < 65536; i++){
         if (gf_mul_comp(i, x, tables) == 1){
             result = i;
             break;
         }
     }
+    // printf("%ld\n", result);
+    // printf("correct inverse : %ld\n\n", gf_inverse_MR_BCH_8bits_LUT(x, tables));
     if (result != -1){
         return result;
     }else{
@@ -53,9 +55,19 @@ long gf_inverse_comp(long x, struct Tables *tables){
 }
 
 long gf_pow_comp(long x, long power, struct Tables *tables){
-    long result = 1;
-    for (int i = 0; i < power; i++){
+    if(power <= 0){
+        power = 65535 + power;
+    }
+    long result = x;
+    for (int i = 0; i < power - 1; i++){
         result = gf_mul_comp(result, x, tables);
+    }
+    // printf("%ld\n", result);
+    // printf("%ld\n\n", gf_pow_MR_BCH_8bits_LUT(x, power, tables));
+    if (result == gf_pow_MR_BCH_8bits_LUT(x, power, tables)){
+        ;;
+    }else{
+        printf("False\n");
     }
     return result;
 }

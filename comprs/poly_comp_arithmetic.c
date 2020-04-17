@@ -105,7 +105,7 @@ struct Polynomial *rs_generator_poly(long nsym, struct Tables *table){
     long arr_g[1] = {1};
     struct Polynomial *g = newPolynomial(arr_g, 1);
     for (long i = 0; i < nsym; i++){
-        long arr_temp[2] = {1, gf_pow_MR_BCH_8bits_LUT(2, i, table)};
+        long arr_temp[2] = {1, gf_pow_comp(2, i, table)};
         struct Polynomial *temp = newPolynomial(arr_temp, 2);
         struct Polynomial *old_g = g;
         g = gf_poly_mul(g, temp, table);
