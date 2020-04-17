@@ -14,12 +14,44 @@ long gf_mul_comp(long x, long y, struct Tables *tables){
 
     long r1 = gf_mul_MR_BCH_8bits_LUT(a1, b0, tables) ^ gf_mul_MR_BCH_8bits_LUT(a0, b1, tables) ^ gf_mul_MR_BCH_8bits_LUT(gf_mul_MR_BCH_8bits_LUT(32, a1, tables), b1, tables);
     long r0 = gf_mul_MR_BCH_8bits_LUT(a0, b0, tables) ^ gf_mul_MR_BCH_8bits_LUT(gf_mul_MR_BCH_8bits_LUT(32, a1, tables), b1, tables);
-    printf("Higher order byte of result is: %ld\n", r1);
-    printf("Lower order byte of result is: %ld\n", r0); // 44799
+    // printf("Higher order byte of result is: %ld\n", r1);
+    // printf("Lower order byte of result is: %ld\n", r0); // 44799
     // printf("end result is: %ld\n", (r1 << 8) + r0);
     return (r1 << 8) + r0;
 }
 
-long gf_mul_div(long x, long y, struct Tables *tables){
-    return 0;
+long gf_div_comp(long x, long y, struct Tables *tables){
+    long result = -1;
+    for (long i = 0; i < 65535; i++){
+        if (gf_mul_comp(i, y, tables) == x){
+            result = i;
+            break;
+        }
+    }
+    if (result != -1){
+        return result;
+    }else{
+        printf("Error! Qoutient not found!\n");
+        return 0;
+    }
+}
+
+void ext_euclid(long a, long b, long* d, long* s, long* t, struct Tables *tables){
+    if (b == 0){
+        *d = a;
+        *s = 1;
+        *t = 0;
+    }else{
+        long q = gf_div_comp(a, b, tables);
+        long r = a ^ gf_mul_comp(b, q, tables);
+        // long *d1;
+        // long *s1;
+        // long *t1;
+        printf("q: %ld\n", q);
+        printf("b: %ld\n", b);
+        printf("r: %ld\n\n", r);
+        ext_euclid(b, r, d, s, t, tables);
+        long temp_s = *s;
+        *s = *t; *t = temp_s ^ gf_mul_comp(q, (*t), tables);
+    }
 }
