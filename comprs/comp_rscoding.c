@@ -253,8 +253,12 @@ struct Polynomial *rs_find_errors(struct Polynomial *err_loc, long nmess, struct
     {
         if (gf_poly_eval(err_loc, gf_pow_comp(2, i, table), table) == 0)
         {
-            // printf("here!!!\n");
-            push_back(err_pos_arr, nmess - 1 - i);
+            if (i >= nmess - 5){
+                printf("here!!!\n");
+                push_back(err_pos_arr, nmess - 1 - i);
+            }
+        }else{
+            printf("?\n");
         }
     }
     if (err_pos_arr->arr_size != errs)
