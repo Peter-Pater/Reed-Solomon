@@ -11,7 +11,7 @@ struct Polynomial *gf_poly_scale(struct Polynomial *p, long x, struct Tables *ta
     struct Polynomial *ret_val = newPolynomial(arr, p->poly_size);
     for (long i = 0; i < p->poly_size; i++)
     {
-        *(ret_val->poly_arr + i) = gf_mul_MR_BCH_8bits_LUT(*(p->poly_arr + i), x, tables);
+        *(ret_val->poly_arr + i) = gf_mul_comp(*(p->poly_arr + i), x, tables);
     }
     return ret_val;
 }
@@ -82,7 +82,7 @@ struct Polynomial *gf_poly_mul(struct Polynomial *p, struct Polynomial *q, struc
         for (long i = 0; i < p->poly_size; i++)
         {
             ret_val->poly_arr[i+j] = gf_add_BCH_8bits(ret_val->poly_arr[i+j],
-            gf_mul_MR_BCH_8bits_LUT(*(p->poly_arr + i), *(q->poly_arr + j), tables));
+            gf_mul_comp(*(p->poly_arr + i), *(q->poly_arr + j), tables));
         }
     }
 
@@ -95,7 +95,7 @@ long gf_poly_eval(struct Polynomial *p, long x, struct Tables *tables)
     long y = *(p->poly_arr);
     for (long i = 1; i < p->poly_size; i++)
     {
-        y = gf_mul_MR_BCH_8bits_LUT(y, x, tables) ^ *(p->poly_arr + i);
+        y = gf_mul_comp(y, x, tables) ^ *(p->poly_arr + i);
     }
     return y;
 }
@@ -125,7 +125,7 @@ void gf_poly_div(struct Polynomial *qoutient, struct Polynomial *remainder, stru
         if (coef){
             for (long j = 1; j < divisor->poly_size; j++){
                 if (*(divisor->poly_arr + j)){
-                    msg_out[i + j] ^= gf_mul_MR_BCH_8bits_LUT(*(divisor->poly_arr + j), coef, table);
+                    msg_out[i + j] ^= gf_mul_comp(*(divisor->poly_arr + j), coef, table);
                 }
             }
         }

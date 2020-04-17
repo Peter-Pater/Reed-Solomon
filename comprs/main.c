@@ -8,8 +8,8 @@ void comprs_test(){
     // struct Tables *tables_16 = newTables(prime_polynomial_16, 16);
 
     // just choose two numbers in field GF(2^16)
-    long g1 = 989; // 0000001111011101
-    long g2 = 9165; // 0010001111001101
+    long g1 = 15; // 0000001111011101
+    long g2 = 20; // 0010001111001101
     printf("g1 = %ld, g2 = %ld\n", g1, g2);
 
     // // compute with big table
@@ -21,6 +21,7 @@ void comprs_test(){
     int prime_polynomial = 285; //100011101
     struct Tables *tables = newTables(prime_polynomial, 8);
     printf("result is: %ld\n", gf_mul_comp(g1, g2, tables));
+    printf("result is: %ld\n", gf_mul_MR_BCH_8bits_LUT(g1, g2, tables));
 
     // 23333 / 44799 = 5417
     for (long i = 0; i < 65535; i++){
@@ -31,15 +32,15 @@ void comprs_test(){
 
     printf("qoutient is: %ld\n", gf_div_comp(23333, 5417, tables));
 
-    // find inverse
-    long a = 44799;
-    long b = 65824;
-    // long b = 65535;
-    long *d = malloc(sizeof(long));
-    long *s = malloc(sizeof(long));
-    long *t = malloc(sizeof(long));
-    ext_euclid(a, b, d, s, t, tables);
-    printf("%ld, %ld, %ld\n", *d, *s, *t); // d = gcd(a, b), as + bt = d
+    // // find inverse
+    // long a = 44799;
+    // long b = 65824;
+    // // long b = 65535;
+    // long *d = malloc(sizeof(long));
+    // long *s = malloc(sizeof(long));
+    // long *t = malloc(sizeof(long));
+    // ext_euclid(a, b, d, s, t, tables);
+    // printf("%ld, %ld, %ld\n", *d, *s, *t); // d = gcd(a, b), as + bt = d
 }
 
 void stdrs_test(){
@@ -59,28 +60,38 @@ void stdrs_test(){
 
     //Example1
     printf("Example1:\n");
-    int n = 250;
-    int k = 240;
-    char message[240] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n'
+    int n = 24;
+    int k = 12;
+    char message[12] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n'
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n'
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+                         // 'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n'
                           };
 
     // char message[9600];
@@ -108,9 +119,9 @@ void stdrs_test(){
     // printf("time taken for encoding %lf\n", time_taken);
 
     struct Polynomial *encoded_mesecc_poly = rs_encode_msg(mesecc_poly, n - k, tables);
-    // printf("Original Encoded Message:\n");
-    // printPolynomial(encoded_mesecc_poly);
-    // printf("\n");
+    printf("Original Encoded Message:\n");
+    printPolynomial(encoded_mesecc_poly);
+    printf("\n");
 
     // Tampering 6 characters of the message:
     int num_errors = 5;
