@@ -13,7 +13,6 @@ void stdrs_test(){
 
     start = clock();
     struct Tables *tables = newTables(prime_polynomial_16, bits);
-    printTables(tables);
     end = clock();
     time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("time taken for precomputing the table is %lf\n", time_taken);
