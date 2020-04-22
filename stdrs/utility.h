@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 void printBinary(long);
 
@@ -32,6 +33,8 @@ struct Polynomial
     size_t poly_size;
     long *poly_arr;
 };
+
+struct Polynomial *randPolynomial(size_t);
 
 struct Polynomial *newPolynomial(long *, size_t);
 

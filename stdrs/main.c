@@ -3,8 +3,8 @@
 #include "stdrscoding.h"
 
 void stdrs_test(){
-    int bits = 16;
-    int prime_polynomial = 285; //100011101
+    int bits = 8;
+    int prime_polynomial_8 = 285; //100011101
     int prime_polynomial_16 = 66525; //10000001111011101
     long prime_polynomial_32 = 4299161607; //100000000010000000000000000000111
 
@@ -12,7 +12,7 @@ void stdrs_test(){
     double time_taken;
 
     start = clock();
-    struct Tables *tables = newTables(prime_polynomial_16, bits);
+    struct Tables *tables = newTables(prime_polynomial_8, bits);
     end = clock();
     time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("time taken for precomputing the table is %lf\n", time_taken);
@@ -42,6 +42,18 @@ void stdrs_test(){
                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n'
                           };
+
+    // char message[120] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+    //                     'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+    //                     'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+    //                     'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+    //                     'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+    //                     'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+    //                     'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+    //                     'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+    //                     'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
+    //                     'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n'
+    //                     };
 
     // char message[9600];
     // for (int i = 0; i < 9600; i++){
@@ -73,7 +85,7 @@ void stdrs_test(){
     // printf("\n");
 
     // Tampering 6 characters of the message:
-    int num_errors = 5;
+    int num_errors = 6;
     for (int i = 0; i < num_errors; i++){
         *(encoded_mesecc_poly->poly_arr + i) = 0;
     }
@@ -100,10 +112,36 @@ void stdrs_test(){
 
     delTables(tables);
     delPolynomial(encoded_mesecc_poly);
+    delPolynomial(corrected_message_poly);
+
+    // printf("character : %c\n", 126);
 }
 
-int main()
+void evaluation(int bits, int n, int k) {
+    int prime_polynomial = 0;
+    if (bits == 8) {
+        prime_polynomial = 285; //100011101
+    } else if (bits == 16) {
+        prime_polynomial = 66525; //10000001111011101
+    }
+    struct Polynomial *rand_message = randPolynomial(k);
+    printPolynomial(rand_message);
+    printPolynomialAsMessage(rand_message, k);
+}
+
+int main(int argc, char *argv[])
 {
-    stdrs_test();
+    // stdrs_test();
+    if (argc != 4) {
+        printf("4 arguments expected.\n");
+        exit(1);
+    }
+    int bits = atoi(argv[1]);
+    int n = atoi(argv[2]);
+    int k = atoi(argv[3]);
+    printf("bits : %d\n", bits);
+    printf("n : %d\n", n);
+    printf("k : %d\n", k);
+    evaluation(bits, n, k);
     return 0;
 }

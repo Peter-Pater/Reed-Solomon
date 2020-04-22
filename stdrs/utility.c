@@ -194,6 +194,35 @@ void printTables(struct Tables *tables)
     }
 }
 
+struct Polynomial *randPolynomial(size_t sz)
+{
+    struct Polynomial *ret_val = malloc(sizeof(struct Polynomial));
+    if (ret_val == NULL)
+    {
+        return NULL;
+    }
+
+    ret_val->poly_arr = malloc(sz * sizeof(long));
+
+    if (ret_val->poly_arr == NULL)
+    {
+        free (ret_val);
+        return NULL;
+    }
+
+    ret_val->poly_size = sz;
+
+    int l = 32;
+    int r = 126;
+    srand(time(0));
+    for (long i = 0; i < sz; i++)
+    {
+        *(ret_val->poly_arr + i) = l + (rand() % (r - l + 1));
+    }
+
+    return ret_val;
+}
+
 struct Polynomial *newPolynomial(long *arr, size_t sz)
 {
     struct Polynomial *ret_val = malloc(sizeof(struct Polynomial));
@@ -241,7 +270,7 @@ struct Polynomial* reversePolynomial(struct Polynomial *poly)
 
 void printPolynomial(struct Polynomial *poly)
 {
-    // printf("the size of poly is %lu\n", poly->poly_size);
+    printf("the size of poly is %lu\n", poly->poly_size);
     printf("the coefficients of poly is: \n");
     for (long i = 0; i < poly->poly_size; i++)
     {
