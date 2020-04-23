@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include <time.h>
 
 void printBinary(long);
 
@@ -40,11 +39,13 @@ struct Polynomial *newPolynomial(long *, size_t);
 
 void delPolynomial(struct Polynomial *);
 
+struct Polynomial* corruptPolynomial(struct Polynomial *, int);
+
 struct Polynomial* reversePolynomial(struct Polynomial *);
 
-void printPolynomial(struct Polynomial *poly);
+void printPolynomial(struct Polynomial *);
 
-void printPolynomialAsMessage(struct Polynomial *poly, long k);
+void printPolynomialAsMessage(struct Polynomial *, long);
 
 struct DynamicArray
 {

@@ -214,7 +214,6 @@ struct Polynomial *randPolynomial(size_t sz)
 
     int l = 32;
     int r = 126;
-    srand(time(0));
     for (long i = 0; i < sz; i++)
     {
         *(ret_val->poly_arr + i) = l + (rand() % (r - l + 1));
@@ -256,6 +255,33 @@ void delPolynomial(struct Polynomial *poly)
         free(poly->poly_arr);
         free(poly);
     }
+}
+
+struct Polynomial* corruptPolynomial(struct Polynomial *poly, int num_err)
+{
+    int l = 32;
+    int r = 126;
+    struct Polynomial *ret_val = newPolynomial(poly->poly_arr, poly->poly_size);
+    for (long i = 0; i < poly->poly_size; i++)
+    {
+        *(ret_val->poly_arr + i) = *(poly->poly_arr + i);
+    }
+    // int err_index_arr[num_err];
+    while (num_err > 0)
+    {
+        // *(err_index_arr + j) = rand() % (poly->poly_size);
+        int rand_index = rand() % (poly->poly_size);
+        if (*(ret_val->poly_arr + rand_index) == *(poly->poly_arr + rand_index))
+        {
+            int rand_num = l + (rand() % (r - l + 1));
+            if (rand_num != *(poly->poly_arr + rand_index))
+            {
+                *(ret_val->poly_arr + rand_index) = l + (rand() % (r - l + 1));
+                num_err--;
+            }
+        }
+    }
+    return ret_val;
 }
 
 struct Polynomial* reversePolynomial(struct Polynomial *poly)
