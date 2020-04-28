@@ -294,6 +294,22 @@ struct Polynomial* reversePolynomial(struct Polynomial *poly)
     return ret_val;
 }
 
+int isEqualPolynomial(struct Polynomial *poly1, struct Polynomial *poly2)
+{
+    if (poly1->poly_size != poly2->poly_size)
+    {
+        return 0;
+    }
+    for (int i = 0; i < poly1->poly_size; i++)
+    {
+        if (*(poly1->poly_arr + i) != *(poly2->poly_arr + i))
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void printPolynomial(struct Polynomial *poly)
 {
     printf("the size of poly is %lu\n", poly->poly_size);

@@ -143,16 +143,31 @@ void evaluation(int bits, int n, int k, int num_err) {
     printf("The Corrupted Message:\n");
     printPolynomial(corrupted_message_poly);
     printPolynomialAsMessage(corrupted_message_poly, k);
+    if (isEqualPolynomial(encoded_message_poly, corrupted_message_poly))
+    {
+        printf("The encoded message is not corrupted!\n");
+    } else 
+    {
+        printf("The encoded message is corrupted!\n");
+    }
     printf("\n");
     
     struct Polynomial *corrected_message_poly = rs_correct_msg(corrupted_message_poly, n - k, tables, bits);
     printf("The Corrected Message:\n");
     printPolynomial(corrected_message_poly);
     printPolynomialAsMessage(corrected_message_poly, k);
+    if (isEqualPolynomial(encoded_message_poly, corrected_message_poly))
+    {
+        printf("The message is corrected!\n");
+    } else 
+    {
+        printf("The message is not corrected!\n");
+    }
 
     delTables(tables);
     delPolynomial(rand_message_poly);
     delPolynomial(encoded_message_poly);
+    delPolynomial(corrupted_message_poly);
     delPolynomial(corrected_message_poly);
 }
 

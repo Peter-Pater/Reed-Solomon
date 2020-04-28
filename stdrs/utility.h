@@ -43,6 +43,8 @@ struct Polynomial* corruptPolynomial(struct Polynomial *, int);
 
 struct Polynomial* reversePolynomial(struct Polynomial *);
 
+int isEqualPolynomial(struct Polynomial *, struct Polynomial *);
+
 void printPolynomial(struct Polynomial *);
 
 void printPolynomialAsMessage(struct Polynomial *, long);
