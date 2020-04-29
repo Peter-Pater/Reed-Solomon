@@ -106,14 +106,20 @@ void stdrs_test(){
     // printf("time taken for decoding %lf\n", time_taken);
 
     struct Polynomial *corrected_message_poly = rs_correct_msg(encoded_mesecc_poly, n - k, tables, bits);
-    printf("Repaired Message:\n");
-    printPolynomial(corrected_message_poly);
-    printPolynomialAsMessage(corrected_message_poly, k);
+    if (corrected_message_poly == NULL)
+    {
+        printf("Too many errors to correct!\n");
+    } else 
+    {
+        printf("Repaired Message:\n");
+        printPolynomial(corrected_message_poly);
+        printPolynomialAsMessage(corrected_message_poly, k);
+        delPolynomial(corrected_message_poly);
+    }
 
     delTables(tables);
     delPolynomial(mesecc_poly);
     delPolynomial(encoded_mesecc_poly);
-    delPolynomial(corrected_message_poly);
 
     // printf("character : %c\n", 126);
 }
@@ -153,40 +159,91 @@ void evaluation(int bits, int n, int k, int num_err) {
     printf("\n");
     
     struct Polynomial *corrected_message_poly = rs_correct_msg(corrupted_message_poly, n - k, tables, bits);
-    printf("The Corrected Message:\n");
-    printPolynomial(corrected_message_poly);
-    printPolynomialAsMessage(corrected_message_poly, k);
-    if (isEqualPolynomial(encoded_message_poly, corrected_message_poly))
+    if (corrected_message_poly == NULL)
     {
-        printf("The message is corrected!\n");
-    } else 
+        printf("Too many errors to correct!\n");
+    }
+    else
     {
-        printf("The message is not corrected!\n");
+        printf("The Corrected Message:\n");
+        printPolynomial(corrected_message_poly);
+        printPolynomialAsMessage(corrected_message_poly, k);
+        if (isEqualPolynomial(encoded_message_poly, corrected_message_poly))
+        {
+            printf("The message is corrected!\n");
+        } else 
+        {
+            printf("The message is not corrected!\n");
+        }
+        delPolynomial(corrected_message_poly);
     }
 
     delTables(tables);
     delPolynomial(rand_message_poly);
     delPolynomial(encoded_message_poly);
     delPolynomial(corrupted_message_poly);
-    delPolynomial(corrected_message_poly);
+}
+
+//sample size unit is MB
+void evalLargeSample(int bits, int n, int k, int num_err, int sample_size) 
+{
+    srand(time(0));
+    int prime_polynomial = 0;
+    if (bits == 8) {
+        prime_polynomial = 285; //100011101
+    } else if (bits == 16) {
+        prime_polynomial = 66525; //10000001111011101
+    }
+    struct Tables *tables = newTables(prime_polynomial, bits);
+    int sample_size_int = sample_size * 1024 * 1024;
+    struct Polynomial *rand_message_poly = randPolynomial(sample_size_int);
+    // printPolynomialAsMessage(rand_message_poly, sample_size_int);
+    int num_chunks = 0;
+    if (sample_size_int % k == 0)
+    {
+        num_chunks = sample_size_int / k;
+    }
+    else
+    {
+        num_chunks = (sample_size_int / k);
+    }
+    printf("The input message can be divided into %d chunks\n", num_chunks);
+    int num_errs = num_chunks * num_err;
+    printf("There are totally %d errors in this message\n", num_errs);
+    for (int i = 0; i < num_chunks; i++)
+    {
+        long *message = malloc(k * sizeof(long));
+        for (int j = i * k; j < (i + 1) * k; j++)
+        {
+            *(message + j - (i * k)) = *(rand_message_poly->poly_arr + j);
+        }
+        struct Polynomial *test_poly = newPolynomial(message, k);
+        // printPolynomial(test_poly);
+        delPolynomial(test_poly);
+        free(message);
+    }
 }
 
 int main(int argc, char *argv[])
 {
     // stdrs_test();
-    if (argc != 5) {
-        printf("5 arguments expected.\n");
+    if (argc != 6) {
+        printf("6 arguments expected.\n");
         exit(1);
     }
     int bits = atoi(argv[1]);
     int n = atoi(argv[2]);
     int k = atoi(argv[3]);
     int num_err = atoi(argv[4]);
+    int sample_size = atoi(argv[5]);
     printf("bits : %d\n", bits);
     printf("n : %d\n", n);
     printf("k : %d\n", k);
     printf("num_err : %d\n", num_err);
+    printf("sampleSize : %d MB\n", sample_size);
     printf("\n");
-    evaluation(bits, n, k, num_err);
+    // evaluation(bits, n, k, num_err);
+    // printf("\n");
+    evalLargeSample(bits, n, k, num_err, sample_size);
     return 0;
 }

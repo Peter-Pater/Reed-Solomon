@@ -238,8 +238,8 @@ struct Polynomial *rs_find_error_locator(struct Polynomial *synd, long nsym, str
     long errs = err_loc->poly_size - 1;
     if ((errs - erase_count) * 2 + erase_count > nsym)
     {
-        printf("Too many errors to correct, erase count: %ld, err count: %ld\n", erase_count, errs);
-        exit(1);
+        // printf("Too many errors to correct, erase count: %ld, err count: %ld\n", erase_count, errs);
+        return NULL;
     }
     return err_loc;
 }
@@ -300,7 +300,6 @@ struct Polynomial *rs_forney_syndromes(struct Polynomial *synd, struct Polynomia
     return fsynd;
 }
 
-// struct Polynomial *rs_correct_msg(struct Polynomial *msg_in, int nsym, struct Polynomial *erase_pos, struct Tables *table)
 struct Polynomial *rs_correct_msg(struct Polynomial *msg_in, long nsym, struct Tables *table, int bits)
 {
     if (msg_in->poly_size > table->gf_log_size - 1)
@@ -329,6 +328,9 @@ struct Polynomial *rs_correct_msg(struct Polynomial *msg_in, long nsym, struct T
     }
     // struct Polynomial *fsynd = rs_forney_syndromes(synd, erase_pos, msg_out->poly_size, table); // error incurred
     struct Polynomial *err_loc = rs_find_error_locator(synd, nsym, NULL, table);
+    if (err_loc == NULL) {
+        return NULL;
+    }
     struct Polynomial *err_pos = rs_find_errors(reversePolynomial(err_loc), msg_out->poly_size, table);
     if (err_pos->poly_size == 0)
     {
