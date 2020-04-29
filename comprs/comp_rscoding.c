@@ -310,7 +310,7 @@ struct Polynomial *rs_forney_syndromes(struct Polynomial *synd, struct Polynomia
 // struct Polynomial *rs_correct_msg(struct Polynomial *msg_in, int nsym, struct Polynomial *erase_pos, struct Tables *table)
 struct Polynomial *rs_correct_msg(struct Polynomial *msg_in, long nsym, struct Tables *table, int bits)
 {
-    if (msg_in->poly_size > (long) pow(2.0, (double) bits))
+    if (msg_in->poly_size > (long) pow(2, (double) bits))
     {
         printf("Message is too long\n");
         exit(1);

@@ -33,15 +33,21 @@ struct Polynomial
     long *poly_arr;
 };
 
+struct Polynomial *randPolynomial(size_t);
+
 struct Polynomial *newPolynomial(long *, size_t);
 
 void delPolynomial(struct Polynomial *);
 
+struct Polynomial* corruptPolynomial(struct Polynomial *, int);
+
 struct Polynomial* reversePolynomial(struct Polynomial *);
 
-void printPolynomial(struct Polynomial *poly);
+int isEqualPolynomial(struct Polynomial *, struct Polynomial *);
 
-void printPolynomialAsMessage(struct Polynomial *poly, long k);
+void printPolynomial(struct Polynomial *);
+
+void printPolynomialAsMessage(struct Polynomial *, long);
 
 struct DynamicArray
 {

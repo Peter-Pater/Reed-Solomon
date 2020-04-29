@@ -194,6 +194,34 @@ void printTables(struct Tables *tables)
     }
 }
 
+struct Polynomial *randPolynomial(size_t sz)
+{
+    struct Polynomial *ret_val = malloc(sizeof(struct Polynomial));
+    if (ret_val == NULL)
+    {
+        return NULL;
+    }
+
+    ret_val->poly_arr = malloc(sz * sizeof(long));
+
+    if (ret_val->poly_arr == NULL)
+    {
+        free (ret_val);
+        return NULL;
+    }
+
+    ret_val->poly_size = sz;
+
+    int l = 32;
+    int r = 126;
+    for (long i = 0; i < sz; i++)
+    {
+        *(ret_val->poly_arr + i) = l + (rand() % (r - l + 1));
+    }
+
+    return ret_val;
+}
+
 struct Polynomial *newPolynomial(long *arr, size_t sz)
 {
     struct Polynomial *ret_val = malloc(sizeof(struct Polynomial));
@@ -229,6 +257,33 @@ void delPolynomial(struct Polynomial *poly)
     }
 }
 
+struct Polynomial* corruptPolynomial(struct Polynomial *poly, int num_err)
+{
+    int l = 32;
+    int r = 126;
+    struct Polynomial *ret_val = newPolynomial(poly->poly_arr, poly->poly_size);
+    for (long i = 0; i < poly->poly_size; i++)
+    {
+        *(ret_val->poly_arr + i) = *(poly->poly_arr + i);
+    }
+    // int err_index_arr[num_err];
+    while (num_err > 0)
+    {
+        // *(err_index_arr + j) = rand() % (poly->poly_size);
+        int rand_index = rand() % (poly->poly_size);
+        if (*(ret_val->poly_arr + rand_index) == *(poly->poly_arr + rand_index))
+        {
+            int rand_num = l + (rand() % (r - l + 1));
+            if (rand_num != *(poly->poly_arr + rand_index))
+            {
+                *(ret_val->poly_arr + rand_index) = l + (rand() % (r - l + 1));
+                num_err--;
+            }
+        }
+    }
+    return ret_val;
+}
+
 struct Polynomial* reversePolynomial(struct Polynomial *poly)
 {
     struct Polynomial *ret_val = newPolynomial(poly->poly_arr, poly->poly_size);
@@ -239,9 +294,25 @@ struct Polynomial* reversePolynomial(struct Polynomial *poly)
     return ret_val;
 }
 
+int isEqualPolynomial(struct Polynomial *poly1, struct Polynomial *poly2)
+{
+    if (poly1->poly_size != poly2->poly_size)
+    {
+        return 0;
+    }
+    for (int i = 0; i < poly1->poly_size; i++)
+    {
+        if (*(poly1->poly_arr + i) != *(poly2->poly_arr + i))
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void printPolynomial(struct Polynomial *poly)
 {
-    // printf("the size of poly is %lu\n", poly->poly_size);
+    printf("the size of poly is %lu\n", poly->poly_size);
     printf("the coefficients of poly is: \n");
     for (long i = 0; i < poly->poly_size; i++)
     {

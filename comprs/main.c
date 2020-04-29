@@ -2,220 +2,83 @@
 #include <time.h>
 #include "comp_rscoding.h"
 
-void comprs_test(){
-    // int prime_polynomial_16 = 102231; //10000001111011101
-    // 66525, 69643, 69765, 79555, 80075, 80967, 83211, 94317, 95361, 99439, 101303, 101615, 101959, 102231
-    // struct Tables *tables_16 = newTables(prime_polynomial_16, 16);
-
-    // just choose two numbers in field GF(2^16)
-    long g1 = 989; // 0000001111011101
-    long g2 = 9165; // 0010001111001101
-    printf("g1 = %ld, g2 = %ld\n", g1, g2);
-
-    // // compute with big table
-    // printf("The result using regular 16-bits table = %ld\n", gf_mul_MR_BCH_8bits_LUT(g1, g2, tables_16));
-    // delTables(tables_16);
-
-    // now use 8-bit table
-    // first half and second half:
-    int prime_polynomial = 285; //100011101
-    struct Tables *tables = newTables(prime_polynomial, 8);
-    printf("result is: %ld\n", gf_mul_comp(g1, g2, tables));
-    // printf("result is: %ld\n", gf_mul_MR_BCH_8bits_LUT(g1, g2, tables));
-
-    // inverse * 44799 = 1
-    long inverse = 0;
-    for (long i = 0; i < 65535; i++){
-        if (gf_mul_comp(i, 44799, tables) == 1){
-            inverse = i;
-            printf("inverse is: %ld\n", i);
-        }
+void evaluation(int bits, int n, int k, int num_err) {
+    srand(time(0));
+    int prime_polynomial = 0;
+    if (bits == 8) {
+        prime_polynomial = 285; //100011101
+    } else if (bits == 16) {
+        prime_polynomial = 66525; //10000001111011101
     }
-    printf("qoutient is: %ld\n", gf_mul_comp(inverse, 23333, tables));
-
-    // 23333 / 44799 = 5417
-    for (long i = 0; i < 65535; i++){
-        if (gf_mul_comp(i, 44799, tables) == 23333){
-            printf("qoutient is: %ld\n", i);
-        }
-    }
-    printf("qoutient is: %ld\n", gf_div_comp(23333, 44799, tables));
-
-    long a = 2;
-    long b = 8;
-    printf("Exponential result is %ld\n", gf_pow_comp(a, b, tables));
-
-    // // find inverse
-    // long a = 44799;
-    // long b = 65824;
-    // // long b = 65535;
-    // long *d = malloc(sizeof(long));
-    // long *s = malloc(sizeof(long));
-    // long *t = malloc(sizeof(long));
-    // ext_euclid(a, b, d, s, t, tables);
-    // printf("%ld, %ld, %ld\n", *d, *s, *t); // d = gcd(a, b), as + bt = d
-}
-
-void stdrs_test(){
-    int bits = 8;
-    int prime_polynomial = 285; //100011101
-    int prime_polynomial_16 = 66525; //10000001111011101
-    long prime_polynomial_32 = 4299161607; //100000000010000000000000000000111
-
-    clock_t start, end;
-    double time_taken;
-
-    start = clock();
     struct Tables *tables = newTables(prime_polynomial, bits);
-    end = clock();
-    time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("time taken for precomputing the table is %lf\n", time_taken);
+    struct Polynomial *rand_message_poly = randPolynomial(k);
+    printf("The Original Message:\n");
+    printPolynomial(rand_message_poly);
+    printPolynomialAsMessage(rand_message_poly, k);
+    printf("\n");
 
-    //Example1
-    printf("Example1:\n");
-    int n = 500;
-    int k = 480;
-    // int message[300] = {1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                 1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                 1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                 1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                 1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                 1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                 1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                 1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                 1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                 1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                 1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000,
-    //                   1000, 1000, 2000, 2000, 3000, 1000, 1000, 2000, 2000, 3000};
-    char message[480] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                         'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n',
-                          'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n'
-                          };
-
-    // char message[9600];
-    // for (int i = 0; i < 9600; i++){
-    //     message[i] = 'h';
-    // }
-
-    long message_arr[k];
-    for (int i = 0; i < k; i++)
+    struct Polynomial *encoded_message_poly = rs_encode_msg(rand_message_poly, n - k, tables);
+    printf("The Encoded Message:\n");
+    printPolynomial(encoded_message_poly);
+    printPolynomialAsMessage(encoded_message_poly, k);
+    printf("\n");
+    
+    struct Polynomial *corrupted_message_poly = corruptPolynomial(encoded_message_poly, num_err);
+    printf("The Corrupted Message:\n");
+    printPolynomial(corrupted_message_poly);
+    printPolynomialAsMessage(corrupted_message_poly, k);
+    if (isEqualPolynomial(encoded_message_poly, corrupted_message_poly))
     {
-        *(message_arr + i) = *(message + i);
+        printf("The encoded message is not corrupted!\n");
+    } else 
+    {
+        printf("The encoded message is corrupted!\n");
     }
-
-    struct Polynomial *mesecc_poly = newPolynomial(message_arr, k);
-
-    // time encoding
-    // start = clock();
-    // for (int i = 0; i < 10000000 / k; i++){
-    //     struct Polynomial *temp;
-    //     temp = rs_encode_msg(mesecc_poly, n - k, tables);
-    //     delPolynomial(temp);
-    // }
-    // end = clock();
-    // time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
-    // printf("time taken for encoding %lf\n", time_taken);
-
-    struct Polynomial *encoded_mesecc_poly = rs_encode_msg(mesecc_poly, n - k, tables);
-    printf("Original Encoded Message:\n");
-    printPolynomial(encoded_mesecc_poly);
     printf("\n");
-
-    // Tampering num_errors characters of the message:
-    int num_errors = 10;
-    *(encoded_mesecc_poly->poly_arr + 10) = 4000;
-    *(encoded_mesecc_poly->poly_arr + 20) = 4000;
-    *(encoded_mesecc_poly->poly_arr + 30) = 4000;
-    *(encoded_mesecc_poly->poly_arr + 40) = 4000;
-    *(encoded_mesecc_poly->poly_arr + 50) = 4000;
-    *(encoded_mesecc_poly->poly_arr + 60) = 4000;
-    *(encoded_mesecc_poly->poly_arr + 70) = 4000;
-    *(encoded_mesecc_poly->poly_arr + 80) = 4000;
-    *(encoded_mesecc_poly->poly_arr + 90) = 4000;
-    *(encoded_mesecc_poly->poly_arr + 100) = 4000;
-
-    printf("Corrupted Encoded Message:\n");
-    printPolynomial(encoded_mesecc_poly);
-    printf("\n");
-
-    // time decoding
-    // start = clock();
-    // for (int i = 0; i < 10000000 / k; i++){
-    //     struct Polynomial *temp;
-    //     temp = rs_correct_msg(encoded_mesecc_poly, n - k, tables, bits);
-    //     delPolynomial(temp);
-    // }
-    // end = clock();
-    // time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
-    // printf("time taken for decoding %lf\n", time_taken);
-
-    struct Polynomial *corrected_message_poly = rs_correct_msg(encoded_mesecc_poly, n - k, tables, 16);
-    printf("Repaired Message:\n");
-    printPolynomial(corrected_message_poly);
-    // printPolynomialAsMessage(corrected_message_poly, k);
+    
+    struct Polynomial *corrected_message_poly = rs_correct_msg(corrupted_message_poly, n - k, tables, 2 * bits);
+    if (corrected_message_poly == NULL)
+    {
+        printf("Too many errors to correct!\n");
+    }
+    else
+    {
+        printf("The Corrected Message:\n");
+        printPolynomial(corrected_message_poly);
+        printPolynomialAsMessage(corrected_message_poly, k);
+        if (isEqualPolynomial(encoded_message_poly, corrected_message_poly))
+        {
+            printf("The message is corrected!\n");
+        } else 
+        {
+            printf("The message is not corrected!\n");
+        }
+        delPolynomial(corrected_message_poly);
+    }
 
     delTables(tables);
-    delPolynomial(encoded_mesecc_poly);
+    delPolynomial(rand_message_poly);
+    delPolynomial(encoded_message_poly);
+    delPolynomial(corrupted_message_poly);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    stdrs_test();
-    // comprs_test();
+    if (argc != 6) {
+        printf("6 arguments expected.\n");
+        exit(1);
+    }
+    int bits = atoi(argv[1]);
+    int n = atoi(argv[2]);
+    int k = atoi(argv[3]);
+    int num_err = atoi(argv[4]);
+    int sample_size = atoi(argv[5]);
+    printf("bits : %d\n", bits);
+    printf("n : %d\n", n);
+    printf("k : %d\n", k);
+    printf("num_err : %d\n", num_err);
+    printf("sampleSize : %d MB\n", sample_size);
+    printf("\n");
+    evaluation(bits, n, k, num_err);
     return 0;
 }

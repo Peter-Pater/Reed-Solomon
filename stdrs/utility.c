@@ -257,6 +257,7 @@ void delPolynomial(struct Polynomial *poly)
     }
 }
 
+// err positions and errs are both uniformly distributed
 struct Polynomial* corruptPolynomial(struct Polynomial *poly, int num_err)
 {
     int l = 32;
