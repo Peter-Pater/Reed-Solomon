@@ -37,7 +37,7 @@ struct Polynomial *rs_calc_syndromes(struct Polynomial *encoded_msg, long nsym, 
     struct Polynomial *synd = newPolynomial(arr, nsym + 1);
     for (long i = 1; i < nsym + 1; i++)
     {
-        *(synd->poly_arr + i) = gf_poly_eval(encoded_msg, gf_pow_comp(2, i - 1, table), table);
+        *(synd->poly_arr + i) = gf_poly_eval(encoded_msg, gf_pow_comp(256, i - 1, table), table);
     }
     return synd;
 }
@@ -61,7 +61,7 @@ struct Polynomial *rs_find_errata_locator(struct Polynomial *e_pos, struct Table
     struct Polynomial *ret_val = newPolynomial(e_loc, 1);
     for (long i = 0; i < e_pos->poly_size; i++)
     {
-        long temp[2] = {gf_pow_comp(2, *(e_pos->poly_arr + i), table), 0};
+        long temp[2] = {gf_pow_comp(256, *(e_pos->poly_arr + i), table), 0};
         struct Polynomial *temp_poly1 = newPolynomial(temp, 2);
         long temp_arr[1] = {1};
         struct Polynomial *temp_poly2 = newPolynomial(temp_arr, 1);
@@ -107,7 +107,7 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
     struct Polynomial *X = newPolynomial(coef_pos->poly_arr, coef_pos->poly_size);
     for (long i = 0; i < coef_pos->poly_size; i++)
     {
-        *(X->poly_arr + i) = gf_pow_comp(2, *(coef_pos->poly_arr + i) - (long) pow(2.0, (double) bits) + 1, table);
+        *(X->poly_arr + i) = gf_pow_comp(256, *(coef_pos->poly_arr + i) - (long) pow(2.0, (double) bits) + 1, table);
     }
     // printPolynomial(X);
 
@@ -251,16 +251,16 @@ struct Polynomial *rs_find_errors(struct Polynomial *err_loc, long nmess, struct
     struct DynamicArray *err_pos_arr = newDynamicArray(10);
     for (long i = 0; i < nmess; i++)
     {
-        if (gf_poly_eval(err_loc, gf_pow_comp(2, i, table), table) == 0)
+        if (gf_poly_eval(err_loc, gf_pow_comp(256, i, table), table) == 0)
         {
             // if (i >= nmess - 5){
             //     printf("here!!!\n");
             //     push_back(err_pos_arr, nmess - 1 - i);
             // }
-            // printf("here!!!\n");
+            // printf("%ld, here!!!\n", i);
             push_back(err_pos_arr, nmess - 1 - i);
         }else{
-            // printf("?\n");
+            // printf("%ld\n", i);
             ;;
         }
     }
@@ -294,7 +294,7 @@ struct Polynomial *rs_forney_syndromes(struct Polynomial *synd, struct Polynomia
     if (erase_pos != NULL)
     {
         for (long i = 0; i < erase_pos->poly_size; i++){
-            long x = gf_pow_comp(2, *(erase_pos_reversed->poly_arr + i), table);
+            long x = gf_pow_comp(256, *(erase_pos_reversed->poly_arr + i), table);
             for (long j = 0; j < fsynd->poly_size - 1; j++){
                 *(fsynd->poly_arr + j) = gf_mul_comp(*(fsynd->poly_arr + j), x, table) ^ *(fsynd->poly_arr + j + 1);
             }

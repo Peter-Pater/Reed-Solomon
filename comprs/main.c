@@ -177,10 +177,17 @@ void stdrs_test(){
     printf("\n");
 
     // Tampering num_errors characters of the message:
-    int num_errors = 4;
-    for (int i = 0; i < num_errors; i++){
-        *(encoded_mesecc_poly->poly_arr + i) = 4000;
-    }
+    int num_errors = 10;
+    *(encoded_mesecc_poly->poly_arr + 10) = 4000;
+    *(encoded_mesecc_poly->poly_arr + 20) = 4000;
+    *(encoded_mesecc_poly->poly_arr + 30) = 4000;
+    *(encoded_mesecc_poly->poly_arr + 40) = 4000;
+    *(encoded_mesecc_poly->poly_arr + 50) = 4000;
+    *(encoded_mesecc_poly->poly_arr + 60) = 4000;
+    *(encoded_mesecc_poly->poly_arr + 70) = 4000;
+    *(encoded_mesecc_poly->poly_arr + 80) = 4000;
+    *(encoded_mesecc_poly->poly_arr + 90) = 4000;
+    *(encoded_mesecc_poly->poly_arr + 100) = 4000;
 
     printf("Corrupted Encoded Message:\n");
     printPolynomial(encoded_mesecc_poly);

@@ -12,11 +12,21 @@ long gf_mul_comp(long x, long y, struct Tables *tables){
     long b0 = y & 0xff; //11001101
     // printf("lower order byte of y: %ld\n", a0);
 
+    // long p_arr[3] = {1, 1, 32};
+    // struct Polynomial *p = newPolynomial(p_arr, 3);
+    //
+    // long ret_arr[3] = {gf_mul_MR_BCH_8bits_LUT(a1, b1, tables), gf_mul_MR_BCH_8bits_LUT(a1, b0, tables) ^ gf_mul_MR_BCH_8bits_LUT(a0, b1, tables), gf_mul_MR_BCH_8bits_LUT(a0, b0, tables)};
+    // struct Polynomial *ret = newPolynomial(ret_arr, 3);
+
     long r1 = gf_mul_MR_BCH_8bits_LUT(a1, b0, tables) ^ gf_mul_MR_BCH_8bits_LUT(a0, b1, tables) ^ gf_mul_MR_BCH_8bits_LUT(a1, b1, tables);
     long r0 = gf_mul_MR_BCH_8bits_LUT(a0, b0, tables) ^ gf_mul_MR_BCH_8bits_LUT(gf_mul_MR_BCH_8bits_LUT(32, a1, tables), b1, tables);
+
+
     // printf("Higher order byte of result is: %ld\n", r1);
     // printf("Lower order byte of result is: %ld\n", r0); // 44799
     // printf("end result is: %ld\n", (r1 << 8) + r0);
+
+    // return (*(ret->poly_arr) << 8) + *(ret->poly_arr + 1);
     return (r1 << 8) + r0;
 }
 
@@ -64,11 +74,11 @@ long gf_pow_comp(long x, long power, struct Tables *tables){
     }
     // printf("%ld\n", result);
     // printf("%ld\n\n", gf_pow_MR_BCH_8bits_LUT(x, power, tables));
-    if (result == gf_pow_MR_BCH_8bits_LUT(x, power, tables)){
-        ;;
-    }else{
-        printf("False\n");
-    }
+    // if (result == gf_pow_MR_BCH_8bits_LUT(x, power, tables)){
+    //     ;;
+    // }else{
+    //     printf("False\n");
+    // }
     return result;
 }
 
