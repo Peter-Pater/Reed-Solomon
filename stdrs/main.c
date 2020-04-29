@@ -2,7 +2,7 @@
 #include <time.h>
 #include "stdrscoding.h"
 
-void evaluation(int bits, int n, int k, int num_err) {
+void evalSmallSample(int bits, int n, int k, int num_err) {
     srand(time(0));
     int prime_polynomial = 0;
     if (bits == 8) {
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
     printf("num_err : %d\n", num_err);
     printf("sampleSize : %d MB\n", sample_size);
     printf("\n");
-    // evaluation(bits, n, k, num_err);
+    // evalSmallSample(bits, n, k, num_err);
     // printf("\n");
     evalLargeSample(bits, n, k, num_err, sample_size);
     return 0;
