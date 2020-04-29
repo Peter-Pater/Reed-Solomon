@@ -259,8 +259,9 @@ struct Polynomial *rs_find_errors(struct Polynomial *err_loc, long nmess, struct
     }
     if (err_pos_arr->arr_size != errs)
     {
-        printf("Too many (or few) errors found by Chien Search for the errata locator polynomial! Err count: %ld\n", err_pos_arr->arr_size);
-        exit(1);
+        // printf("Too many (or few) errors found by Chien Search for the errata locator polynomial! Err count: %ld\n", err_pos_arr->arr_size);
+        // exit(1);
+        return NULL;
     }
     struct Polynomial *err_pos = newPolynomial(err_pos_arr->data, err_pos_arr->arr_size);
     delDynamicArray(err_pos_arr);
@@ -332,10 +333,14 @@ struct Polynomial *rs_correct_msg(struct Polynomial *msg_in, long nsym, struct T
         return NULL;
     }
     struct Polynomial *err_pos = rs_find_errors(reversePolynomial(err_loc), msg_out->poly_size, table);
-    if (err_pos->poly_size == 0)
+    // if (err_pos->poly_size == 0)
+    // {
+    //     printf("Could not locate error\n");
+    //     exit(1);
+    // }
+    if (err_pos == NULL)
     {
-        printf("Could not locate error\n");
-        exit(1);
+        return NULL;
     }
     // if (erase_pos != NULL)
     // {

@@ -75,14 +75,17 @@ void evalLargeSample(int bits, int n, int k, int num_err, int sample_size)
         prime_polynomial = 66525; //10000001111011101
     }
     struct Tables *tables = newTables(prime_polynomial, bits);
-    int sample_size_int = sample_size * 1024;
+    int sample_size_int = sample_size * 1024 * 1024;
     struct Polynomial *rand_message_poly = randPolynomial(sample_size_int);
     // printPolynomialAsMessage(rand_message_poly, sample_size_int);
     int num_chunks = sample_size_int / k;
     printf("The input message can be divided into %d chunks\n", num_chunks);
     int num_errs = num_chunks * num_err;
     int encoded_poly_size = num_chunks * n;
-    int err_pos[encoded_poly_size];
+    // printf("debug\n");
+    int *err_pos = malloc(encoded_poly_size * sizeof(int));
+    // int err_pos[encoded_poly_size];
+    // printf("debug!\n");
     for (int k = 0; k < encoded_poly_size; k++)
     {
         *(err_pos + k) = 0;
@@ -97,12 +100,12 @@ void evalLargeSample(int bits, int n, int k, int num_err, int sample_size)
             m--;
         }
     }
-    
     printf("There are totally %d errors in this message\n", num_errs);
     printf("The encoded polynomial size is %d\n", encoded_poly_size);
     printf("\n");
     for (int i = 0; i < num_chunks; i++)
     {
+        printf("chunk %d: ", i);
         long *original_message = malloc(k * sizeof(long));
         long *corrupted_message = malloc(n * sizeof(long));
         for (int j = i * k; j < (i + 1) * k; j++)
@@ -159,6 +162,7 @@ void evalLargeSample(int bits, int n, int k, int num_err, int sample_size)
         free(corrupted_message);
         printf("\n");
     }
+    free(err_pos);
 }
 
 int main(int argc, char *argv[])
