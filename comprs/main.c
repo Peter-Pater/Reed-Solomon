@@ -79,7 +79,7 @@ void evalLargeSample(int base_bits, int composite_bits, int n, int k, int num_er
         prime_polynomial = 66525; //10000001111011101
     }
     struct Tables *tables = newTables(prime_polynomial, base_bits);
-    int sample_size_int = sample_size * 100 * 1024;
+    int sample_size_int = sample_size * 1024 * 1024;
     struct Polynomial *rand_message_poly = randPolynomial(sample_size_int);
     int num_chunks = sample_size_int / k;
     printf("The input message can be divided into %d chunks\n", num_chunks);
