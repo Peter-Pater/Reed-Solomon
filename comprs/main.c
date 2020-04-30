@@ -12,40 +12,40 @@ void evalSmallSample(int base_bits, int composite_bits, int n, int k, int num_er
     }
     struct Tables *tables = newTables(prime_polynomial, base_bits);
     struct Polynomial *rand_message_poly = randPolynomial(k);
-    printf("The Original Message:\n");
-    printPolynomial(rand_message_poly);
-    printPolynomialAsMessage(rand_message_poly, k);
-    printf("\n");
+    // printf("The Original Message:\n");
+    // printPolynomial(rand_message_poly);
+    // printPolynomialAsMessage(rand_message_poly, k);
+    // printf("\n");
 
     struct Polynomial *encoded_message_poly = rs_encode_msg(rand_message_poly, n - k, tables);
-    printf("The Encoded Message:\n");
-    printPolynomial(encoded_message_poly);
-    printPolynomialAsMessage(encoded_message_poly, k);
-    printf("\n");
+    // printf("The Encoded Message:\n");
+    // printPolynomial(encoded_message_poly);
+    // printPolynomialAsMessage(encoded_message_poly, k);
+    // printf("\n");
     
     struct Polynomial *corrupted_message_poly = corruptPolynomial(encoded_message_poly, num_err);
-    printf("The Corrupted Message:\n");
-    printPolynomial(corrupted_message_poly);
-    printPolynomialAsMessage(corrupted_message_poly, k);
-    if (isEqualPolynomial(encoded_message_poly, corrupted_message_poly))
-    {
-        printf("The encoded message is not corrupted!\n");
-    } else 
-    {
-        printf("The encoded message is corrupted!\n");
-    }
-    printf("\n");
+    // printf("The Corrupted Message:\n");
+    // printPolynomial(corrupted_message_poly);
+    // printPolynomialAsMessage(corrupted_message_poly, k);
+    // if (isEqualPolynomial(encoded_message_poly, corrupted_message_poly))
+    // {
+    //     printf("The encoded message is not corrupted!\n");
+    // } else 
+    // {
+    //     printf("The encoded message is corrupted!\n");
+    // }
+    // printf("\n");
     
     struct Polynomial *corrected_message_poly = rs_correct_msg(corrupted_message_poly, n - k, tables, composite_bits);
     if (corrected_message_poly == NULL)
     {
-        printf("Too many errors to correct!\n");
+        printf("The message is not corrected!\n");
     }
     else
     {
-        printf("The Corrected Message:\n");
-        printPolynomial(corrected_message_poly);
-        printPolynomialAsMessage(corrected_message_poly, k);
+        // printf("The Corrected Message:\n");
+        // printPolynomial(corrected_message_poly);
+        // printPolynomialAsMessage(corrected_message_poly, k);
         if (isEqualPolynomial(encoded_message_poly, corrected_message_poly))
         {
             printf("The message is corrected!\n");
@@ -65,12 +65,11 @@ void evalSmallSample(int base_bits, int composite_bits, int n, int k, int num_er
 //sample size unit is MB
 void evalLargeSample(int base_bits, int composite_bits, int n, int k, int num_err, int sample_size) 
 {
+    srand(time(0));
     clock_t start, end;
     double time_taken;
-
     start = clock();
     int corrected_chunks = 0;
-    srand(time(0));
     int l = 32;
     int r = 126;
     int prime_polynomial = 0;
@@ -80,9 +79,8 @@ void evalLargeSample(int base_bits, int composite_bits, int n, int k, int num_er
         prime_polynomial = 66525; //10000001111011101
     }
     struct Tables *tables = newTables(prime_polynomial, base_bits);
-    int sample_size_int = sample_size * 1024 * 1024;
+    int sample_size_int = sample_size * 100 * 1024;
     struct Polynomial *rand_message_poly = randPolynomial(sample_size_int);
-    // printPolynomialAsMessage(rand_message_poly, sample_size_int);
     int num_chunks = sample_size_int / k;
     printf("The input message can be divided into %d chunks\n", num_chunks);
     int num_errs = num_chunks * num_err;
@@ -115,9 +113,7 @@ void evalLargeSample(int base_bits, int composite_bits, int n, int k, int num_er
             *(original_message + j - (i * k)) = *(rand_message_poly->poly_arr + j);
         }
         struct Polynomial *test_original_poly = newPolynomial(original_message, k);
-        // printPolynomial(test_original_poly);
         struct Polynomial *test_encoded_poly = rs_encode_msg(test_original_poly, n - k, tables);
-        // printPolynomial(test_encoded_poly);
         for (int c = i * n; c < (i + 1) * n; c++)
         {
             if (*(err_pos + c) == 1)
@@ -162,8 +158,24 @@ void evalLargeSample(int base_bits, int composite_bits, int n, int k, int num_er
         (double)(num_err * 100) / k, (double)(corrected_chunks * 100) / num_chunks);
 }
 
+void test0()
+{
+    srand(time(0));
+    int n = 12500;
+    int base_bits = 8;
+    int composite_bits = 16;
+    for (int i = 0; i < 20; i++)
+    {
+        int k = 10000 + (rand() % 2000);
+        printf("%d\n", k);
+        int num_err = (n - k) / 2;
+        evalSmallSample(base_bits, composite_bits, n, k, num_err);
+    }
+}
+
 int main(int argc, char *argv[])
 {
+    // test0();
     if (argc != 7) {
         printf("7 arguments expected.\n");
         exit(1);
@@ -181,7 +193,13 @@ int main(int argc, char *argv[])
     printf("num_err : %d\n", num_err);
     printf("sampleSize : %d MB\n", sample_size);
     printf("\n");
-    // evalSmallSample(base_bits, composite_bits, n, k, num_err);
-    evalLargeSample(base_bits, composite_bits, n, k, num_err, sample_size);
+    if (sample_size == 0)
+    {
+        evalSmallSample(base_bits, composite_bits, n, k, num_err);
+    }
+    else
+    {
+        evalLargeSample(base_bits, composite_bits, n, k, num_err, sample_size);
+    }
     return 0;
 }

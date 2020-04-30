@@ -143,8 +143,9 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
         // printf("y: %ld\n", y);
         if (err_loc_prime == 0)
         {
-            printf("Could not find error magnitude!!!\n");
-            exit(1);
+            // printf("Could not find error magnitude!!!\n");
+            // exit(1);
+            return NULL;
         }
         long magnitude = gf_div_comp(y, err_loc_prime, table);
         *(E->poly_arr + *(err_pos->poly_arr + i)) = magnitude;
@@ -238,8 +239,9 @@ struct Polynomial *rs_find_error_locator(struct Polynomial *synd, long nsym, str
     long errs = err_loc->poly_size - 1;
     if ((errs - erase_count) * 2 + erase_count > nsym)
     {
-        printf("Too many errors to correct, erase count: %ld, err count: %ld\n", erase_count, errs);
-        exit(1);
+        // printf("Too many errors to correct, erase count: %ld, err count: %ld\n", erase_count, errs);
+        // exit(1);
+        return NULL;
     }
     return err_loc;
 }
@@ -266,8 +268,9 @@ struct Polynomial *rs_find_errors(struct Polynomial *err_loc, long nmess, struct
     }
     if (err_pos_arr->arr_size != errs)
     {
-        printf("Too many (or few) errors found by Chien Search for the errata locator polynomial! Err found: %ld, Err expected: %ld\n", err_pos_arr->arr_size, errs);
-        exit(1);
+        // printf("Too many (or few) errors found by Chien Search for the errata locator polynomial! Err found: %ld, Err expected: %ld\n", err_pos_arr->arr_size, errs);
+        // exit(1);
+        return NULL;
     }
     struct Polynomial *err_pos = newPolynomial(err_pos_arr->data, err_pos_arr->arr_size);
     delDynamicArray(err_pos_arr);
@@ -312,8 +315,9 @@ struct Polynomial *rs_correct_msg(struct Polynomial *msg_in, long nsym, struct T
 {
     if (msg_in->poly_size > (long) pow(2, (double) bits))
     {
-        printf("Message is too long\n");
-        exit(1);
+        // printf("Message is too long\n");
+        // exit(1);
+        return NULL;
     }
     struct Polynomial *msg_out = newPolynomial(msg_in->poly_arr, msg_in->poly_size);
     // if (erase_pos != NULL)
@@ -336,35 +340,28 @@ struct Polynomial *rs_correct_msg(struct Polynomial *msg_in, long nsym, struct T
     }
     // struct Polynomial *fsynd = rs_forney_syndromes(synd, erase_pos, msg_out->poly_size, table); // error incurred
     struct Polynomial *err_loc = rs_find_error_locator(synd, nsym, NULL, table);
-    struct Polynomial *err_pos = rs_find_errors(reversePolynomial(err_loc), msg_out->poly_size, table);
-    if (err_pos->poly_size == 0)
+    if (err_loc == NULL)
     {
-        printf("Could not locate error\n");
-        exit(1);
+        return NULL;
     }
-    // if (erase_pos != NULL)
-    // {
-    //     int pos_arr[0 + erase_pos->poly_size + err_pos->poly_size];
-    //     for (int j = 0 ; j < erase_pos->poly_size + err_pos->poly_size; j++)
-    //     {
-    //         if (j < erase_pos->poly_size)
-    //         {
-    //             *(pos_arr + j) = *(erase_pos->poly_arr + j);
-    //         } else
-    //         {
-    //             *(pos_arr + j) = *(err_pos->poly_arr + j - erase_pos->poly_size);
-    //         }
-    //     }
-    //     struct Polynomial *pos_poly = newPolynomial(pos_arr, erase_pos->poly_size + err_pos->poly_size);
-    //     msg_out = rs_correct_errata(msg_out, synd, pos_poly, table);
-    // } else {
+    struct Polynomial *err_pos = rs_find_errors(reversePolynomial(err_loc), msg_out->poly_size, table);
+    if (err_pos->poly_size == 0 || err_pos == NULL)
+    {
+        // printf("Could not locate error\n");
+        // exit(1);
+        return NULL;
+    }
     msg_out = rs_correct_errata(msg_out, synd, err_pos, table, bits);
-    // }
+    if (msg_out == NULL)
+    {
+        return NULL;
+    }
     synd = rs_calc_syndromes(msg_out, nsym, table);
     if (rs_check(synd, nsym, table) == 1)
     {
-        printf("Could not correct message\n");
+        // printf("Could not correct message\n");
         // exit(1);
+        return NULL;
     }
     return msg_out;
 }

@@ -143,8 +143,9 @@ struct Polynomial *rs_correct_errata(struct Polynomial *msg_in, struct Polynomia
         // printf("y: %ld\n", y);
         if (err_loc_prime == 0)
         {
-            printf("Could not find error magnitude!!!\n");
-            exit(1);
+            // printf("Could not find error magnitude!!!\n");
+            // exit(1);
+            return NULL;
         }
         long magnitude = gf_div_MR_BCH_8bits_LUT(y, err_loc_prime, table);
         *(E->poly_arr + *(err_pos->poly_arr + i)) = magnitude;
@@ -342,29 +343,18 @@ struct Polynomial *rs_correct_msg(struct Polynomial *msg_in, long nsym, struct T
     {
         return NULL;
     }
-    // if (erase_pos != NULL)
-    // {
-    //     int pos_arr[0 + erase_pos->poly_size + err_pos->poly_size];
-    //     for (int j = 0 ; j < erase_pos->poly_size + err_pos->poly_size; j++)
-    //     {
-    //         if (j < erase_pos->poly_size)
-    //         {
-    //             *(pos_arr + j) = *(erase_pos->poly_arr + j);
-    //         } else
-    //         {
-    //             *(pos_arr + j) = *(err_pos->poly_arr + j - erase_pos->poly_size);
-    //         }
-    //     }
-    //     struct Polynomial *pos_poly = newPolynomial(pos_arr, erase_pos->poly_size + err_pos->poly_size);
-    //     msg_out = rs_correct_errata(msg_out, synd, pos_poly, table);
-    // } else {
+
     msg_out = rs_correct_errata(msg_out, synd, err_pos, table, bits);
-    // }
+    if (msg_out == NULL)
+    {
+        return NULL;
+    }
     synd = rs_calc_syndromes(msg_out, nsym, table);
     if (rs_check(synd, nsym, table) == 1)
     {
-        printf("Could not correct message\n");
-        exit(1);
+        // printf("Could not correct message\n");
+        // exit(1);
+        return NULL;
     }
     return msg_out;
 }
