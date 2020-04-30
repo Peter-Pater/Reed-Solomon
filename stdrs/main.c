@@ -65,6 +65,11 @@ void evalSmallSample(int bits, int n, int k, int num_err) {
 //sample size unit is MB
 void evalLargeSample(int bits, int n, int k, int num_err, int sample_size) 
 {
+    clock_t start, end;
+    double time_taken;
+
+    start = clock();
+    int corrected_chunks = 0;
     srand(time(0));
     int l = 32;
     int r = 126;
@@ -148,8 +153,9 @@ void evalLargeSample(int bits, int n, int k, int num_err, int sample_size)
             // printPolynomialAsMessage(test_corrected_poly, k);
             if (isEqualPolynomial(test_encoded_poly, test_corrected_poly))
             {
+                corrected_chunks++;
                 printf("The message is corrected!\n");
-            } else 
+            } else
             {
                 printf("The message is not corrected!\n");
             }
@@ -163,6 +169,11 @@ void evalLargeSample(int bits, int n, int k, int num_err, int sample_size)
         printf("\n");
     }
     free(err_pos);
+    end = clock();
+    time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Time taken for %d MB data is %lfs\n", sample_size, time_taken);
+    printf("The corrected rate for %f%% of err is %f%%\n", 
+        (double)(num_err * 100) / k, (double)(corrected_chunks * 100) / num_chunks);
 }
 
 int main(int argc, char *argv[])
@@ -183,7 +194,6 @@ int main(int argc, char *argv[])
     printf("sampleSize : %d MB\n", sample_size);
     printf("\n");
     // evalSmallSample(bits, n, k, num_err);
-    // printf("\n");
     evalLargeSample(bits, n, k, num_err, sample_size);
     return 0;
 }
