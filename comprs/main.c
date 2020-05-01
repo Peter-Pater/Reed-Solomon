@@ -11,6 +11,7 @@ void sample(){
     // generate a pre-computed table with 8 bits
     struct Tables *tables = newTables(prime_polynomial, bits);
 
+    // RS(12000, 10000)
     int n = 12000;
     int k = 10000;
 
@@ -21,8 +22,10 @@ void sample(){
         *(message_arr + i) = i;
     }
 
+    // The message need to be stored as a polynomial
     struct Polynomial *mesecc_poly = newPolynomial(message_arr, k);
 
+    // encode
     struct Polynomial *encoded_mesecc_poly = rs_encode_msg(mesecc_poly, n - k, tables);
     printf("Original Encoded Message:\n");
     printPolynomial(encoded_mesecc_poly);
@@ -38,11 +41,12 @@ void sample(){
     printPolynomial(encoded_mesecc_poly);
     printf("\n");
 
-
+    // decode
     struct Polynomial *corrected_message_poly = rs_correct_msg(encoded_mesecc_poly, n - k, tables, 16);
     printf("Repaired Message:\n");
     printPolynomial(corrected_message_poly);
 
+    // clean up
     delTables(tables);
     delPolynomial(encoded_mesecc_poly);
 }

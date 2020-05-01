@@ -31,7 +31,7 @@ struct Polynomial *encoded_mesecc_poly = rs_encode_msg(mesecc_poly, n - k, table
 struct Polynomial *corrected_message_poly = rs_correct_msg(encoded_mesecc_poly, n - k, tables, 16);
 ```
 
-6. If correction is possible, the above function will return a corrected message in"
+6. If correction is possible, the above function will return a corrected message in
 ```c
 corrected_message_poly->poly_arr
 ```
