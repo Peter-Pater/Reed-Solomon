@@ -8,6 +8,7 @@ void sample(){
     // int prime_polynomial_16 = 66525; //10000001111011101
     // long prime_polynomial_32 = 4299161607; //100000000010000000000000000000111
 
+    // generate a pre-computed table with 8 bits
     struct Tables *tables = newTables(prime_polynomial, bits);
 
     int n = 12000;
