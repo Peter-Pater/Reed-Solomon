@@ -88,10 +88,10 @@ void evalLargeSample(int bits, int n, int k, int num_err, int sample_size)
     int num_errs = num_chunks * num_err;
     int encoded_poly_size = num_chunks * n;
     int *err_pos = malloc(encoded_poly_size * sizeof(int));
-    for (int k = 0; k < encoded_poly_size; k++)
-    {
-        *(err_pos + k) = 0;
-    }
+    // for (int k = 0; k < encoded_poly_size; k++)
+    // {
+    //     *(err_pos + k) = 0;
+    // }
     int m = num_errs;
     while (m > 0)
     {
@@ -102,12 +102,22 @@ void evalLargeSample(int bits, int n, int k, int num_err, int sample_size)
             m--;
         }
     }
+    for (int y = 0; y < num_errs; y++)
+    {
+        *(err_pos + y) = 1;
+    }
+    // printf("[");
+    // for (int x = 0; x < encoded_poly_size; x++)
+    // {
+    //     printf("%d, ", *(err_pos + x));
+    // }
+    // printf("]\n");
     printf("There are totally %d errors in this message\n", num_errs);
     printf("The encoded polynomial size is %d\n", encoded_poly_size);
     printf("\n");
     for (int i = 0; i < num_chunks; i++)
     {
-        printf("chunk %d: ", i);
+        // printf("chunk %d: ", i);
         long *original_message = malloc(k * sizeof(long));
         long *corrupted_message = malloc(n * sizeof(long));
         for (int j = i * k; j < (i + 1) * k; j++)
@@ -131,17 +141,17 @@ void evalLargeSample(int bits, int n, int k, int num_err, int sample_size)
         struct Polynomial *test_corrected_poly = rs_correct_msg(test_corrupted_poly, n - k, tables, bits);
         if (test_corrected_poly == NULL)
         {
-            printf("The message is failed to be corrected!\n");
+            // printf("The message is failed to be corrected!\n");
         }
         else
         {
             if (isEqualPolynomial(test_encoded_poly, test_corrected_poly))
             {
                 corrected_chunks++;
-                printf("The message is corrected!\n");
+                // printf("The message is corrected!\n");
             } else
             {
-                printf("The message is not corrected!\n");
+                // printf("The message is not corrected!\n");
             }
             delPolynomial(test_corrected_poly);
         }
@@ -150,7 +160,7 @@ void evalLargeSample(int bits, int n, int k, int num_err, int sample_size)
         delPolynomial(test_corrupted_poly);
         free(original_message);
         free(corrupted_message);
-        printf("\n");
+        // printf("\n");
     }
     free(err_pos);
     end = clock();
@@ -173,7 +183,8 @@ void test0()
 
 int main(int argc, char *argv[])
 {
-    test0();
+
+    // test0();
     if (argc != 6) {
         printf("6 arguments expected.\n");
         exit(1);

@@ -105,7 +105,7 @@ void evalLargeSample(int base_bits, int composite_bits, int n, int k, int num_er
     printf("\n");
     for (int i = 0; i < num_chunks; i++)
     {
-        printf("chunk %d: ", i);
+        // printf("chunk %d: ", i);
         long *original_message = malloc(k * sizeof(long));
         long *corrupted_message = malloc(n * sizeof(long));
         for (int j = i * k; j < (i + 1) * k; j++)
@@ -129,17 +129,17 @@ void evalLargeSample(int base_bits, int composite_bits, int n, int k, int num_er
         struct Polynomial *test_corrected_poly = rs_correct_msg(test_corrupted_poly, n - k, tables, composite_bits);
         if (test_corrected_poly == NULL)
         {
-            printf("The message is failed to be corrected!\n");
+            // printf("The message is failed to be corrected!\n");
         }
         else
         {
             if (isEqualPolynomial(test_encoded_poly, test_corrected_poly))
             {
                 corrected_chunks++;
-                printf("The message is corrected!\n");
+                // printf("The message is corrected!\n");
             } else 
             {
-                printf("The message is not corrected!\n");
+                // printf("The message is not corrected!\n");
             }
             delPolynomial(test_corrected_poly);
         }
@@ -148,7 +148,7 @@ void evalLargeSample(int base_bits, int composite_bits, int n, int k, int num_er
         delPolynomial(test_corrupted_poly);
         free(original_message);
         free(corrupted_message);
-        printf("\n");
+        // printf("\n");
     }
     free(err_pos);
     end = clock();
