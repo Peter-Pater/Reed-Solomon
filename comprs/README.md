@@ -2,7 +2,7 @@
 This projects implements a composite Reed Solomon coder based on GF((2^8)^2) in C.
 The sample function in main.c shows an example of usage.
 
-- To use it in your own project, follow the following steps:
+## To use it in your own project, follow the following steps:
 
 1. Include header:
 ```c
@@ -37,14 +37,14 @@ corrected_message_poly->poly_arr
 ```
 If correction is possible when the message is too long or if there are too many errors, an error message will show up and the program will terminate.
 
-- To print a message from a polynomial:
+### To print a message from a polynomial:
 ```c
 printPolynomial(corrected_message_poly);
 ```
 
-- To run the sample, which encodes and decodes RS(12000, 10000):
-# compile
+## To run the sample, which encodes and decodes RS(12000, 10000):
+### compile
 make
 
-# run
+### run
 ./main
