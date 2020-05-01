@@ -16,8 +16,8 @@ struct Tables *tables = newTables(285, 8);
 ```
 
 3. Prepare message:
-```c
 Put the message of length k that you would like to encode as an array, and create a message polynomial by:
+```c
 struct Polynomial *mesecc_poly = newPolynomial(message_arr, k);
 ```
 
